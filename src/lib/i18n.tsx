@@ -1,0 +1,271 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+export const LOCALES = ["pt", "es", "en"] as const;
+export type Locale = (typeof LOCALES)[number];
+
+export const LOCALE_LABELS: Record<Locale, string> = {
+  pt: "Português",
+  es: "Español",
+  en: "English",
+};
+
+type Dict = Record<string, string>;
+
+const pt: Dict = {
+  appName: "FluencyBR AI",
+  tabPath: "Trilha",
+  tabChat: "Conversa",
+  tabShop: "Loja",
+  tabProfile: "Perfil",
+  streak: "ofensiva",
+  hearts: "vidas",
+  coins: "moedas",
+  pathTitle: "Trilha de Aventura",
+  pathSubtitle: "Aprenda inglês de verdade, uma fase por vez.",
+  moduleLabel: "Módulo",
+  start: "Começar",
+  review: "Revisar",
+  locked: "Bloqueada",
+  continue: "Continuar",
+  check: "Verificar",
+  correct: "Excelente!",
+  wrong: "Ops, não foi dessa vez",
+  answerWas: "Resposta certa:",
+  chooseTranslation: "Escolha a tradução correta",
+  buildSentence: "Monte a frase em inglês",
+  lessonDone: "Lição concluída!",
+  xpEarned: "XP conquistado",
+  streakBonus: "Bônus de ofensiva",
+  totalCoins: "Moedas",
+  share: "Compartilhar Conquista",
+  backToPath: "Voltar à trilha",
+  outOfHearts: "Suas vidas acabaram!",
+  outOfHeartsDesc: "Recupere vidas para continuar praticando agora mesmo.",
+  watchAd: "Assistir vídeo de 30 segundos para recuperar 1 vida",
+  watching: "Reproduzindo anúncio...",
+  buyHeart: "Comprar 1 vida",
+  buyHearts: "Encher todas as vidas",
+  goPro: "Assinar o Pro",
+  chatTitle: "Simulador de Conversa",
+  chatSubtitle: "Pratique inglês real com a IA, sem medo de errar.",
+  chooseScenario: "Escolha um cenário",
+  typeMessage: "Escreva em inglês...",
+  send: "Enviar",
+  pronunciation: "Feedback de pronúncia",
+  speakHint: "Toque para simular áudio",
+  endChat: "Encerrar conversa",
+  shopTitle: "Loja",
+  shopSubtitle: "Use suas moedas e continue evoluindo.",
+  rewardedAd: "Anúncio recompensado",
+  proTitle: "FluencyBR Pro",
+  proPrice: "Taxinha mensal de R$ 19,90",
+  proCta: "Quero ser Pro",
+  proActive: "Plano Pro ativo",
+  proBenefit1: "Vidas ilimitadas",
+  proBenefit2: "Zero anúncios",
+  proBenefit3: "IA de conversação ilimitada",
+  proBenefit4: "Certificado de fluência",
+  notEnoughCoins: "Moedas insuficientes",
+  purchased: "Compra concluída!",
+  heartsFull: "Suas vidas já estão cheias",
+  language: "Idioma",
+  detected: "detectado pela sua região",
+  level: "Nível",
+  lessonsDone: "lições concluídas",
+};
+
+const es: Dict = {
+  ...pt,
+  tabPath: "Ruta",
+  tabChat: "Conversación",
+  tabShop: "Tienda",
+  tabProfile: "Perfil",
+  streak: "racha",
+  hearts: "vidas",
+  coins: "monedas",
+  pathTitle: "Ruta de Aventura",
+  pathSubtitle: "Aprende inglés de verdad, una fase a la vez.",
+  moduleLabel: "Módulo",
+  start: "Empezar",
+  review: "Repasar",
+  locked: "Bloqueada",
+  continue: "Continuar",
+  check: "Comprobar",
+  correct: "¡Excelente!",
+  wrong: "Uy, esta vez no",
+  answerWas: "Respuesta correcta:",
+  chooseTranslation: "Elige la traducción correcta",
+  buildSentence: "Arma la frase en inglés",
+  lessonDone: "¡Lección completada!",
+  xpEarned: "XP ganado",
+  streakBonus: "Bono de racha",
+  totalCoins: "Monedas",
+  share: "Compartir logro",
+  backToPath: "Volver a la ruta",
+  outOfHearts: "¡Te quedaste sin vidas!",
+  outOfHeartsDesc: "Recupera vidas para seguir practicando ahora.",
+  watchAd: "Ver un video de 30 segundos para recuperar 1 vida",
+  watching: "Reproduciendo anuncio...",
+  buyHeart: "Comprar 1 vida",
+  buyHearts: "Llenar todas las vidas",
+  goPro: "Suscribirse a Pro",
+  chatTitle: "Simulador de Conversación",
+  chatSubtitle: "Practica inglés real con la IA, sin miedo a equivocarte.",
+  chooseScenario: "Elige un escenario",
+  typeMessage: "Escribe en inglés...",
+  send: "Enviar",
+  pronunciation: "Feedback de pronunciación",
+  speakHint: "Toca para simular audio",
+  endChat: "Terminar conversación",
+  shopTitle: "Tienda",
+  shopSubtitle: "Usa tus monedas y sigue avanzando.",
+  rewardedAd: "Anuncio recompensado",
+  proPrice: "Cuota mensual de US$ 3,90",
+  proCta: "Quiero ser Pro",
+  proActive: "Plan Pro activo",
+  proBenefit1: "Vidas ilimitadas",
+  proBenefit2: "Cero anuncios",
+  proBenefit3: "IA de conversación ilimitada",
+  proBenefit4: "Certificado de fluidez",
+  notEnoughCoins: "Monedas insuficientes",
+  purchased: "¡Compra realizada!",
+  heartsFull: "Tus vidas ya están llenas",
+  language: "Idioma",
+  detected: "detectado por tu región",
+  level: "Nivel",
+  lessonsDone: "lecciones completadas",
+};
+
+const en: Dict = {
+  ...pt,
+  tabPath: "Path",
+  tabChat: "Chat",
+  tabShop: "Shop",
+  tabProfile: "Profile",
+  streak: "streak",
+  hearts: "hearts",
+  coins: "coins",
+  pathTitle: "Adventure Path",
+  pathSubtitle: "Learn real English, one stage at a time.",
+  moduleLabel: "Module",
+  start: "Start",
+  review: "Review",
+  locked: "Locked",
+  continue: "Continue",
+  check: "Check",
+  correct: "Excellent!",
+  wrong: "Oops, not this time",
+  answerWas: "Correct answer:",
+  chooseTranslation: "Choose the correct translation",
+  buildSentence: "Build the sentence in English",
+  lessonDone: "Lesson complete!",
+  xpEarned: "XP earned",
+  streakBonus: "Streak bonus",
+  totalCoins: "Coins",
+  share: "Share achievement",
+  backToPath: "Back to path",
+  outOfHearts: "You ran out of hearts!",
+  outOfHeartsDesc: "Refill your hearts to keep practicing right now.",
+  watchAd: "Watch a 30-second video to get 1 heart back",
+  watching: "Playing ad...",
+  buyHeart: "Buy 1 heart",
+  buyHearts: "Refill all hearts",
+  goPro: "Get Pro",
+  chatTitle: "Conversation Simulator",
+  chatSubtitle: "Practice real English with AI, no fear of mistakes.",
+  chooseScenario: "Choose a scenario",
+  typeMessage: "Type in English...",
+  send: "Send",
+  pronunciation: "Pronunciation feedback",
+  speakHint: "Tap to simulate audio",
+  endChat: "End conversation",
+  shopTitle: "Shop",
+  shopSubtitle: "Spend your coins and keep leveling up.",
+  rewardedAd: "Rewarded ad",
+  proPrice: "Monthly fee of US$ 3.90",
+  proCta: "Go Pro",
+  proActive: "Pro plan active",
+  proBenefit1: "Unlimited hearts",
+  proBenefit2: "Zero ads",
+  proBenefit3: "Unlimited AI conversation",
+  proBenefit4: "Fluency certificate",
+  notEnoughCoins: "Not enough coins",
+  purchased: "Purchase complete!",
+  heartsFull: "Your hearts are already full",
+  language: "Language",
+  detected: "detected from your region",
+  level: "Level",
+  lessonsDone: "lessons completed",
+};
+
+const DICTS: Record<Locale, Dict> = { pt, es, en };
+
+const SPANISH_REGIONS = new Set([
+  "ES", "MX", "AR", "CO", "CL", "PE", "UY", "PY", "BO", "EC", "VE", "CR", "PA",
+  "GT", "HN", "NI", "SV", "DO", "CU", "PR",
+]);
+
+export function detectLocale(): Locale {
+  if (typeof navigator === "undefined") return "pt";
+  const langs = [navigator.language, ...(navigator.languages ?? [])];
+  for (const raw of langs) {
+    if (!raw) continue;
+    const lower = raw.toLowerCase();
+    const region = raw.split("-")[1]?.toUpperCase();
+    if (lower.startsWith("pt")) return "pt";
+    if (lower.startsWith("es")) return "es";
+    if (region && SPANISH_REGIONS.has(region)) return "es";
+  }
+  return "en";
+}
+
+type LocaleContextValue = {
+  locale: Locale;
+  setLocale: (locale: Locale) => void;
+  autoDetected: boolean;
+  t: (key: keyof typeof pt | string) => string;
+};
+
+const LocaleContext = createContext<LocaleContextValue | null>(null);
+
+const STORAGE_KEY = "fluencybr.locale";
+
+export function LocaleProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>("pt");
+  const [autoDetected, setAutoDetected] = useState(false);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY) as Locale | null;
+    if (saved && LOCALES.includes(saved)) {
+      setLocaleState(saved);
+      return;
+    }
+    const detected = detectLocale();
+    setLocaleState(detected);
+    setAutoDetected(true);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
+  const setLocale = (next: Locale) => {
+    setLocaleState(next);
+    setAutoDetected(false);
+    window.localStorage.setItem(STORAGE_KEY, next);
+  };
+
+  const t = (key: string) => DICTS[locale][key] ?? DICTS.pt[key] ?? key;
+
+  return (
+    <LocaleContext.Provider value={{ locale, setLocale, autoDetected, t }}>
+      {children}
+    </LocaleContext.Provider>
+  );
+}
+
+export function useI18n() {
+  const ctx = useContext(LocaleContext);
+  if (!ctx) throw new Error("useI18n precisa estar dentro de LocaleProvider");
+  return ctx;
+}

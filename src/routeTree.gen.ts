@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConversaRouteImport } from './routes/conversa'
+import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LicaoLicaoIdRouteImport } from './routes/licao.$licaoId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const ConversaRoute = ConversaRouteImport.update({
   path: '/conversa',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LicaoLicaoIdRoute = LicaoLicaoIdRouteImport.update({
   id: '/licao/$licaoId',
   path: '/licao/$licaoId',
@@ -32,30 +38,34 @@ const LicaoLicaoIdRoute = LicaoLicaoIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/conversa': typeof ConversaRoute
+  '/loja': typeof LojaRoute
   '/licao/$licaoId': typeof LicaoLicaoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/conversa': typeof ConversaRoute
+  '/loja': typeof LojaRoute
   '/licao/$licaoId': typeof LicaoLicaoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/conversa': typeof ConversaRoute
+  '/loja': typeof LojaRoute
   '/licao/$licaoId': typeof LicaoLicaoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/conversa' | '/licao/$licaoId'
+  fullPaths: '/' | '/conversa' | '/loja' | '/licao/$licaoId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conversa' | '/licao/$licaoId'
-  id: '__root__' | '/' | '/conversa' | '/licao/$licaoId'
+  to: '/' | '/conversa' | '/loja' | '/licao/$licaoId'
+  id: '__root__' | '/' | '/conversa' | '/loja' | '/licao/$licaoId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConversaRoute: typeof ConversaRoute
+  LojaRoute: typeof LojaRoute
   LicaoLicaoIdRoute: typeof LicaoLicaoIdRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConversaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/licao/$licaoId': {
       id: '/licao/$licaoId'
       path: '/licao/$licaoId'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConversaRoute: ConversaRoute,
+  LojaRoute: LojaRoute,
   LicaoLicaoIdRoute: LicaoLicaoIdRoute,
 }
 export const routeTree = rootRouteImport

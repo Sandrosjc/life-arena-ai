@@ -24,6 +24,7 @@ export function BrainPower() {
       return () => clearTimeout(id);
     }
     previousXp.current = progress.xp;
+    return undefined;
   }, [progress.xp]);
 
   return (

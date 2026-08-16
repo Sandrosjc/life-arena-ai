@@ -86,7 +86,12 @@ const SCENARIOS: Scenario[] = [
   },
 ];
 
-type Message = { role: "user" | "assistant"; content: string; tip?: string; score?: number };
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+  tip?: string | undefined;
+  score?: number | undefined;
+};
 
 function ChatPage() {
   const { locale, t } = useI18n();

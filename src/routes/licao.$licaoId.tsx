@@ -136,6 +136,11 @@ function LessonPage() {
               style={{ width: `${progressPct}%` }}
             />
           </div>
+          {combo >= 2 ? (
+            <span className="animate-pop shrink-0 rounded-full bg-streak px-2 py-1 font-display text-xs text-primary-foreground">
+              {combo}x {t("combo")}
+            </span>
+          ) : null}
         </div>
 
         <p className="mt-6 text-xs font-extrabold uppercase tracking-widest text-muted-foreground">
@@ -152,7 +157,10 @@ function LessonPage() {
                   key={option}
                   type="button"
                   disabled={status !== "idle"}
-                  onClick={() => setChoice(option)}
+                  onClick={() => {
+                    sfxTap();
+                    setChoice(option);
+                  }}
                   className={`card-3d w-full rounded-2xl px-4 py-4 text-left text-base font-bold transition-colors ${
                     selected
                       ? "border-secondary bg-secondary/10 text-secondary"

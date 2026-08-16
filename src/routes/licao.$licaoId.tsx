@@ -276,6 +276,7 @@ function LessonPage() {
       />
 
       <Dialog open={finished !== null}>
+        {finished ? <Confetti pieces={80} /> : null}
         <DialogContent className="rounded-3xl border-2 text-center sm:max-w-sm">
           <PartyPopper className="mx-auto size-16 animate-pop text-gold" strokeWidth={2} />
           <h2 className="font-display text-2xl">{t("lessonDone")}</h2>

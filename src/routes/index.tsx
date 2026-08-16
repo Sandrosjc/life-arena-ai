@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Crown, Lock, Star } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
+import { BrainPower } from "@/components/BrainPower";
 import { useGame } from "@/lib/game";
+import { sfxTap } from "@/lib/sfx";
 import { useI18n } from "@/lib/i18n";
 import { ALL_LESSONS, MODULES } from "@/lib/lessons";
 
@@ -53,7 +55,9 @@ function PathPage() {
 
   return (
     <AppShell>
-      <section className="mb-6 animate-rise rounded-3xl bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
+      <BrainPower />
+
+      <section className="mb-6 mt-4 animate-rise rounded-3xl bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
         <h1 className="font-display text-2xl leading-tight">{t("pathTitle")}</h1>
         <p className="mt-1 text-sm opacity-90">{t("pathSubtitle")}</p>
         <div className="mt-4 flex items-center gap-4 text-sm font-bold">
@@ -96,6 +100,7 @@ function PathPage() {
                           to="/licao/$licaoId"
                           params={{ licaoId: lesson.id }}
                           aria-label={lesson.title[locale]}
+                          onClick={() => sfxTap()}
                           className={`btn-3d grid size-20 place-items-center rounded-full ${tone.ring} ${
                             !done ? "animate-float shadow-lg" : ""
                           }`}

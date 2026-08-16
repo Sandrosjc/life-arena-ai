@@ -4,10 +4,12 @@ import { Check, Flame, PartyPopper, Share2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { HeartsDialog } from "@/components/HeartsDialog";
+import { Confetti } from "@/components/Confetti";
 import { StatusBar } from "@/components/StatusBar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
+import { sfxCorrect, sfxHeartLost, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
 import { buildExercises, findLesson, type Exercise } from "@/lib/lessons";
 
 export const Route = createFileRoute("/licao/$licaoId")({
@@ -50,6 +52,7 @@ function LessonPage() {
   const [choice, setChoice] = useState<string | null>(null);
   const [built, setBuilt] = useState<string[]>([]);
   const [mistakes, setMistakes] = useState(0);
+  const [combo, setCombo] = useState(0);
   const [heartsDialog, setHeartsDialog] = useState(false);
   const [finished, setFinished] = useState<{ xp: number; bonus: number } | null>(null);
 
@@ -67,17 +70,25 @@ function LessonPage() {
   const check = () => {
     const ok = answer.trim().toLowerCase() === exercise.phrase.en.toLowerCase();
     setStatus(ok ? "correct" : "wrong");
-    if (!ok) {
+    if (ok) {
+      sfxCorrect(combo);
+      setCombo((c) => c + 1);
+    } else {
+      sfxWrong();
+      sfxHeartLost();
+      setCombo(0);
       setMistakes((m) => m + 1);
       loseHeart();
     }
   };
 
   const next = () => {
+    sfxTap();
     if (index + 1 >= total) {
       const xp = Math.max(10, (total - mistakes) * 15);
       const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
       const bonus = completeLesson(licaoId, stars, xp);
+      sfxWin();
       setFinished({ xp, bonus });
       return;
     }
@@ -125,6 +136,11 @@ function LessonPage() {
               style={{ width: `${progressPct}%` }}
             />
           </div>
+          {combo >= 2 ? (
+            <span className="animate-pop shrink-0 rounded-full bg-streak px-2 py-1 font-display text-xs text-primary-foreground">
+              {combo}x {t("combo")}
+            </span>
+          ) : null}
         </div>
 
         <p className="mt-6 text-xs font-extrabold uppercase tracking-widest text-muted-foreground">
@@ -141,7 +157,10 @@ function LessonPage() {
                   key={option}
                   type="button"
                   disabled={status !== "idle"}
-                  onClick={() => setChoice(option)}
+                  onClick={() => {
+                    sfxTap();
+                    setChoice(option);
+                  }}
                   className={`card-3d w-full rounded-2xl px-4 py-4 text-left text-base font-bold transition-colors ${
                     selected
                       ? "border-secondary bg-secondary/10 text-secondary"
@@ -257,7 +276,8 @@ function LessonPage() {
       />
 
       <Dialog open={finished !== null}>
-        <DialogContent showCloseButton={false} className="rounded-3xl border-2 text-center sm:max-w-sm">
+        {finished ? <Confetti pieces={80} /> : null}
+        <DialogContent className="rounded-3xl border-2 text-center sm:max-w-sm">
           <PartyPopper className="mx-auto size-16 animate-pop text-gold" strokeWidth={2} />
           <h2 className="font-display text-2xl">{t("lessonDone")}</h2>
 

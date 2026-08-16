@@ -58,6 +58,7 @@ function ShopPage() {
   };
 
   const goPro = () => {
+    sfxTap();
     activatePro();
     sfxWin();
     setParty(true);
@@ -135,7 +136,14 @@ function ShopPage() {
         </div>
         <button
           type="button"
-          onClick={() => buyHearts(0, 200)}
+          onClick={() => {
+            if (!spendCoins(200)) {
+              toast.error(t("notEnoughCoins"));
+              return;
+            }
+            sfxCoin();
+            toast.success(t("purchased"));
+          }}
           className="btn-3d ml-auto shrink-0 rounded-2xl border-secondary-deep bg-secondary px-3 py-2 text-xs font-extrabold text-secondary-foreground"
         >
           200 💎

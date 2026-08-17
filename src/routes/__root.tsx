@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { GameProvider } from "../lib/game";
 import { LocaleProvider } from "../lib/i18n";
 import { Toaster } from "../components/ui/sonner";
+import { SecretAdminTrigger } from "../components/SecretAdminTrigger";
 
 function NotFoundComponent() {
   return (
@@ -139,6 +140,7 @@ function RootComponent() {
         <GameProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
+          <SecretAdminTrigger />
           <Toaster position="top-center" richColors />
         </GameProvider>
       </LocaleProvider>

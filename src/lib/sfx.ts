@@ -140,3 +140,36 @@ export function sfxBrain() {
   tone(220, 0, 0.7, "sine", 0.14, 880);
   tone(330, 0.1, 0.6, "triangle", 0.1, 1320);
 }
+
+/**
+ * Destrava o áudio no primeiro toque/clique (política de autoplay do iOS/Android).
+ * Cria o AudioContext, resume e toca um buffer silencioso.
+ */
+export function installAudioUnlock() {
+  if (typeof window === "undefined") return () => {};
+  let done = false;
+
+  const unlock = () => {
+    if (done) return;
+    load();
+    if (muted) return; // continua ouvindo até o usuário ligar o som
+    if (!ctx) {
+      const Ctor = window.AudioContext ?? (window as Win).webkitAudioContext;
+      if (!Ctor) return;
+      ctx = new Ctor();
+    }
+    void ctx.resume();
+    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start(0);
+    done = true;
+    remove();
+  };
+
+  const events: (keyof WindowEventMap)[] = ["pointerdown", "touchstart", "keydown", "click"];
+  const remove = () => events.forEach((e) => window.removeEventListener(e, unlock));
+  events.forEach((e) => window.addEventListener(e, unlock, { passive: true }));
+  return remove;
+}

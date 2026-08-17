@@ -187,7 +187,7 @@ function ChatPage() {
           <p className="text-xs text-muted-foreground">{t("chatEmpty")}</p>
         </div>
       ) : (
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-3 pb-24">
           {messages.map((m, i) => (
             <div
               key={i}

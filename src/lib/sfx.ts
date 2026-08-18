@@ -4,10 +4,13 @@
  */
 
 const STORAGE_KEY = "fluencybr.sound";
+const MUSIC_KEY = "fluencybr.music";
 
 let ctx: AudioContext | null = null;
 let muted = false;
 let loaded = false;
+let musicOn = true;
+let musicNodes: { gain: GainNode; timer: number } | null = null;
 
 type Win = Window & { webkitAudioContext?: typeof AudioContext };
 
@@ -15,6 +18,7 @@ function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
   muted = window.localStorage.getItem(STORAGE_KEY) === "off";
+  musicOn = window.localStorage.getItem(MUSIC_KEY) !== "off";
 }
 
 export function isMuted() {
@@ -141,6 +145,83 @@ export function sfxBrain() {
   tone(330, 0.1, 0.6, "triangle", 0.1, 1320);
 }
 
+/** Clique de tecla ao digitar (bem suave). */
+export const sfxKey = () => blip(760, 0.03, "sine", 0.05);
+
+/* ---------------- Música de fundo (loop suave, volume baixo) ---------------- */
+
+const MELODY = [
+  392.0, 523.25, 587.33, 523.25, 440.0, 523.25, 659.25, 523.25,
+  349.23, 440.0, 523.25, 440.0, 392.0, 493.88, 587.33, 493.88,
+];
+
+export function isMusicOn() {
+  load();
+  return musicOn;
+}
+
+function musicStep(ac: AudioContext, gain: GainNode, step: number) {
+  const freq = MELODY[step % MELODY.length]!;
+  const t0 = ac.currentTime;
+  const osc = ac.createOscillator();
+  const amp = ac.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(freq, t0);
+  amp.gain.setValueAtTime(0.0001, t0);
+  amp.gain.exponentialRampToValueAtTime(1, t0 + 0.08);
+  amp.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
+  osc.connect(amp).connect(gain);
+  osc.start(t0);
+  osc.stop(t0 + 0.6);
+
+  // baixo suave a cada 4 tempos
+  if (step % 4 === 0) {
+    const bass = ac.createOscillator();
+    const bamp = ac.createGain();
+    bass.type = "triangle";
+    bass.frequency.setValueAtTime(freq / 4, t0);
+    bamp.gain.setValueAtTime(0.0001, t0);
+    bamp.gain.exponentialRampToValueAtTime(0.8, t0 + 0.1);
+    bamp.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.1);
+    bass.connect(bamp).connect(gain);
+    bass.start(t0);
+    bass.stop(t0 + 1.2);
+  }
+}
+
+export function startMusic() {
+  load();
+  if (musicNodes || !musicOn) return;
+  const ac = audio();
+  if (!ac) return;
+  const gain = ac.createGain();
+  gain.gain.value = 0.035; // bem baixinho, só de fundo
+  gain.connect(ac.destination);
+  let step = 0;
+  musicStep(ac, gain, step);
+  const timer = window.setInterval(() => {
+    step += 1;
+    musicStep(ac, gain, step);
+  }, 480);
+  musicNodes = { gain, timer };
+}
+
+export function stopMusic() {
+  if (!musicNodes) return;
+  window.clearInterval(musicNodes.timer);
+  musicNodes.gain.disconnect();
+  musicNodes = null;
+}
+
+export function toggleMusic() {
+  load();
+  musicOn = !musicOn;
+  window.localStorage.setItem(MUSIC_KEY, musicOn ? "on" : "off");
+  if (musicOn) startMusic();
+  else stopMusic();
+  return musicOn;
+}
+
 /**
  * Destrava o áudio no primeiro toque/clique (política de autoplay do iOS/Android).
  * Cria o AudioContext, resume e toca um buffer silencioso.
@@ -166,6 +247,7 @@ export function installAudioUnlock() {
     src.start(0);
     done = true;
     remove();
+    if (musicOn) startMusic();
   };
 
   const events: (keyof WindowEventMap)[] = ["pointerdown", "touchstart", "keydown", "click"];

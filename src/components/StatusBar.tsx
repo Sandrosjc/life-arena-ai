@@ -1,11 +1,19 @@
-import { Flame, Heart, Infinity as InfinityIcon, Gem } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Flame, Heart, Infinity as InfinityIcon, Gem, Music, Music2 } from "lucide-react";
 
 import { MAX_HEARTS, useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
+import { isMusicOn, startMusic, toggleMusic } from "@/lib/sfx";
 
 export function StatusBar() {
   const { progress } = useGame();
   const { t } = useI18n();
+  const [music, setMusic] = useState(true);
+
+  useEffect(() => {
+    setMusic(isMusicOn());
+    if (isMusicOn()) startMusic();
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
@@ -39,6 +47,18 @@ export function StatusBar() {
         </div>
 
         <div className="flex items-center justify-end gap-1.5">
+          <button
+            type="button"
+            aria-label={t("music")}
+            onClick={() => setMusic(toggleMusic())}
+            className={`rounded-full p-1 ${music ? "text-accent" : "text-muted-foreground"}`}
+          >
+            {music ? (
+              <Music className="size-5" strokeWidth={2.5} />
+            ) : (
+              <Music2 className="size-5 opacity-50" strokeWidth={2.5} />
+            )}
+          </button>
           <Gem className="size-5 shrink-0 text-secondary" strokeWidth={2.5} />
           <span className="font-display text-lg font-extrabold text-secondary">
             {progress.coins}

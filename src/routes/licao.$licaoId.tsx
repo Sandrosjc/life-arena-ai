@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Flame, PartyPopper, Share2, X } from "lucide-react";
+import { Check, Flame, Lightbulb, PartyPopper, Share2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { HeartsDialog } from "@/components/HeartsDialog";
@@ -9,8 +9,13 @@ import { StatusBar } from "@/components/StatusBar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
-import { sfxCorrect, sfxHeartLost, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
-import { buildExercises, findLesson, type Exercise } from "@/lib/lessons";
+import { sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
+import {
+  buildExercises,
+  findLesson,
+  isAnswerCorrect,
+  type Exercise,
+} from "@/lib/lessons";
 
 export const Route = createFileRoute("/licao/$licaoId")({
   head: () => ({
@@ -51,6 +56,8 @@ function LessonPage() {
   const [status, setStatus] = useState<Status>("idle");
   const [choice, setChoice] = useState<string | null>(null);
   const [built, setBuilt] = useState<string[]>([]);
+  const [typed, setTyped] = useState("");
+  const [hint, setHint] = useState(false);
   const [mistakes, setMistakes] = useState(0);
   const [combo, setCombo] = useState(0);
   const [heartsDialog, setHeartsDialog] = useState(false);
@@ -64,11 +71,16 @@ function LessonPage() {
     if (progress.hearts === 0 && !progress.isPro && !finished) setHeartsDialog(true);
   }, [progress.hearts, progress.isPro, finished]);
 
-  const answer = exercise.kind === "choice" ? (choice ?? "") : built.join(" ");
+  const answer =
+    exercise.kind === "choice"
+      ? (choice ?? "")
+      : exercise.kind === "type"
+        ? typed
+        : built.join(" ");
   const canCheck = answer.trim().length > 0;
 
   const check = () => {
-    const ok = answer.trim().toLowerCase() === exercise.phrase.en.toLowerCase();
+    const ok = isAnswerCorrect(answer, exercise.phrase.en);
     setStatus(ok ? "correct" : "wrong");
     if (ok) {
       sfxCorrect(combo);
@@ -96,6 +108,8 @@ function LessonPage() {
     setStatus("idle");
     setChoice(null);
     setBuilt([]);
+    setTyped("");
+    setHint(false);
   };
 
   const share = async () => {
@@ -144,7 +158,11 @@ function LessonPage() {
         </div>
 
         <p className="mt-6 text-xs font-extrabold uppercase tracking-widest text-muted-foreground">
-          {exercise.kind === "choice" ? t("chooseTranslation") : t("buildSentence")}
+          {exercise.kind === "choice"
+            ? t("chooseTranslation")
+            : exercise.kind === "type"
+              ? t("typeSentence")
+              : t("buildSentence")}
         </p>
         <h1 className="mt-2 font-display text-2xl leading-snug">{nativeText}</h1>
 
@@ -171,6 +189,44 @@ function LessonPage() {
                 </button>
               );
             })}
+          </div>
+        ) : exercise.kind === "type" ? (
+          <div className="mt-6 space-y-3">
+            <input
+              value={typed}
+              disabled={status !== "idle"}
+              onChange={(e) => {
+                if (e.target.value.length > typed.length) sfxKey();
+                setTyped(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && canCheck && status === "idle") check();
+              }}
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              placeholder={t("typePlaceholder")}
+              className="card-3d w-full rounded-2xl border-border bg-card px-4 py-4 text-lg font-bold outline-none focus:border-secondary"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                sfxTap();
+                setHint(true);
+              }}
+              className="flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-extrabold text-secondary"
+            >
+              <Lightbulb className="size-4 shrink-0" strokeWidth={3} />
+              {t("hint")}
+            </button>
+            {hint ? (
+              <p className="animate-pop font-mono text-lg tracking-widest text-muted-foreground">
+                {exercise.phrase.en
+                  .split(" ")
+                  .map((w) => `${w[0]}${"_".repeat(Math.max(0, w.length - 1))}`)
+                  .join(" ")}
+              </p>
+            ) : null}
           </div>
         ) : (
           <div className="mt-6">

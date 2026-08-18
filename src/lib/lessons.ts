@@ -231,6 +231,10 @@ export type Exercise =
       kind: "blocks";
       phrase: Phrase;
       tokens: string[];
+    }
+  | {
+      kind: "type";
+      phrase: Phrase;
     };
 
 function shuffle<T>(items: T[]): T[] {
@@ -242,24 +246,63 @@ function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
-/** Gera os exercícios de uma lição alternando múltipla escolha e blocos. */
+/** Normaliza a resposta: ignora maiúsculas, acentos, pontuação e espaços extras. */
+export function normalizeAnswer(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s']/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Distância de edição simples, para perdoar 1 errinho de digitação. */
+function editDistance(a: string, b: string) {
+  const dp = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    let prev = dp[0]!;
+    dp[0] = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const tmp = dp[j]!;
+      dp[j] = Math.min(dp[j]! + 1, dp[j - 1]! + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = tmp;
+    }
+  }
+  return dp[b.length]!;
+}
+
+/** Aceita a resposta com tolerância a 1 errinho (amigável para iniciantes). */
+export function isAnswerCorrect(answer: string, expected: string) {
+  const a = normalizeAnswer(answer);
+  const b = normalizeAnswer(expected);
+  if (!a) return false;
+  if (a === b) return true;
+  return editDistance(a, b) <= Math.max(1, Math.floor(b.length / 18));
+}
+
+/** Gera os exercícios da lição: escolha, blocos e escrita (mais fácil primeiro). */
 export function buildExercises(lesson: Lesson, module: Module): Exercise[] {
   const pool = module.lessons
     .flatMap((l) => l.phrases)
     .filter((p) => !lesson.phrases.some((own) => own.en === p.en));
 
   return lesson.phrases.map((phrase, index) => {
-    if (index % 2 === 0) {
-      const distractors = shuffle(pool).slice(0, 3).map((p) => p.en);
+    const cycle = index % 3;
+    if (cycle === 0) {
+      const distractors = shuffle(pool).slice(0, 2).map((p) => p.en);
       return {
         kind: "choice" as const,
         phrase,
         options: shuffle([phrase.en, ...distractors]),
       };
     }
+    if (cycle === 2) {
+      return { kind: "type" as const, phrase };
+    }
     const words = phrase.en.split(" ");
     const extra = shuffle(pool)
-      .slice(0, 2)
+      .slice(0, 1)
       .map((p) => p.en.split(" ")[0]!)
       .filter((w) => !words.includes(w));
     return {

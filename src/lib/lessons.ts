@@ -223,6 +223,16 @@ export function lessonOrder(lessonId: string) {
 
 export type Exercise =
   | {
+      kind: "learn";
+      phrase: Phrase;
+    }
+  | {
+      kind: "listen";
+      phrase: Phrase;
+      word: string;
+      options: string[];
+    }
+  | {
       kind: "choice";
       phrase: Phrase;
       options: string[];
@@ -281,13 +291,23 @@ export function isAnswerCorrect(answer: string, expected: string) {
   return editDistance(a, b) <= Math.max(1, Math.floor(b.length / 18));
 }
 
-/** Gera os exercícios da lição: escolha, blocos e escrita (mais fácil primeiro). */
+/** Escolhe a palavra mais "cheia" da frase para treinar de ouvido. */
+function keyWord(phrase: Phrase) {
+  const words = phrase.en.split(" ").filter(Boolean);
+  return [...words].sort((a, b) => b.length - a.length)[0]!;
+}
+
+/**
+ * Gera a lição em ritmo de iniciante: para cada frase vem primeiro o
+ * aquecimento (ouvir palavra por palavra), depois o treino de ouvido de uma
+ * palavra e só então o exercício de produção (escolha, blocos ou escrita).
+ */
 export function buildExercises(lesson: Lesson, module: Module): Exercise[] {
   const pool = module.lessons
     .flatMap((l) => l.phrases)
     .filter((p) => !lesson.phrases.some((own) => own.en === p.en));
 
-  return lesson.phrases.map((phrase, index) => {
+  const production = (phrase: Phrase, index: number): Exercise => {
     const cycle = index % 3;
     if (cycle === 0) {
       const distractors = shuffle(pool).slice(0, 2).map((p) => p.en);
@@ -310,5 +330,20 @@ export function buildExercises(lesson: Lesson, module: Module): Exercise[] {
       phrase,
       tokens: shuffle([...words, ...extra]),
     };
+  };
+
+  return lesson.phrases.flatMap((phrase, index) => {
+    const word = keyWord(phrase);
+    const otherWords = shuffle(
+      [...lesson.phrases, ...pool]
+        .flatMap((p) => p.en.split(" "))
+        .filter((w) => w.length > 2 && w.toLowerCase() !== word.toLowerCase()),
+    );
+    const options = shuffle([word, ...otherWords.slice(0, 2)]);
+    return [
+      { kind: "learn" as const, phrase },
+      { kind: "listen" as const, phrase, word, options },
+      production(phrase, index),
+    ];
   });
 }

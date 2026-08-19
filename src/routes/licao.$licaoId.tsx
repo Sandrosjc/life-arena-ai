@@ -9,7 +9,7 @@ import { StatusBar } from "@/components/StatusBar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
-import { sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
+import { sfxCoin, sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
 import {
   buildExercises,
   findLesson,
@@ -141,6 +141,7 @@ function LessonPage() {
   return (
     <div className="min-h-screen bg-background">
       <StatusBar />
+      {status === "correct" ? <Confetti key={burst} pieces={24} /> : null}
 
       <div className="mx-auto max-w-2xl px-4 pt-4">
         <div className="flex items-center gap-3">
@@ -305,7 +306,7 @@ function LessonPage() {
                     status === "correct" ? "text-primary" : "text-destructive"
                   }`}
                 >
-                  {status === "correct" ? t("correct") : t("wrong")}
+                  {status === "correct" ? (praise ?? t("correct")) : t("wrong")}
                 </p>
                 {status === "wrong" ? (
                   <p className="text-sm font-bold text-destructive">

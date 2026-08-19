@@ -9,7 +9,7 @@ import { StatusBar } from "@/components/StatusBar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
-import { sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
+import { sfxCoin, sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
 import {
   buildExercises,
   findLesson,
@@ -60,6 +60,8 @@ function LessonPage() {
   const [hint, setHint] = useState(false);
   const [mistakes, setMistakes] = useState(0);
   const [combo, setCombo] = useState(0);
+  const [praise, setPraise] = useState<string | null>(null);
+  const [burst, setBurst] = useState(0);
   const [heartsDialog, setHeartsDialog] = useState(false);
   const [finished, setFinished] = useState<{ xp: number; bonus: number } | null>(null);
 
@@ -84,11 +86,16 @@ function LessonPage() {
     setStatus(ok ? "correct" : "wrong");
     if (ok) {
       sfxCorrect(combo);
+      sfxCoin();
       setCombo((c) => c + 1);
+      const keys = ["praise1", "praise2", "praise3", "praise4", "praise5"] as const;
+      setPraise(t(keys[Math.floor(Math.random() * keys.length)]!));
+      setBurst((b) => b + 1);
     } else {
       sfxWrong();
       sfxHeartLost();
       setCombo(0);
+      setPraise(null);
       setMistakes((m) => m + 1);
       loseHeart();
     }
@@ -110,6 +117,7 @@ function LessonPage() {
     setBuilt([]);
     setTyped("");
     setHint(false);
+    setPraise(null);
   };
 
   const share = async () => {
@@ -133,6 +141,7 @@ function LessonPage() {
   return (
     <div className="min-h-screen bg-background">
       <StatusBar />
+      {status === "correct" ? <Confetti key={burst} pieces={24} /> : null}
 
       <div className="mx-auto max-w-2xl px-4 pt-4">
         <div className="flex items-center gap-3">
@@ -297,7 +306,7 @@ function LessonPage() {
                     status === "correct" ? "text-primary" : "text-destructive"
                   }`}
                 >
-                  {status === "correct" ? t("correct") : t("wrong")}
+                  {status === "correct" ? (praise ?? t("correct")) : t("wrong")}
                 </p>
                 {status === "wrong" ? (
                   <p className="text-sm font-bold text-destructive">

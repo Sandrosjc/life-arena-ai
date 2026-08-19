@@ -5,20 +5,61 @@
 
 const STORAGE_KEY = "fluencybr.sound";
 const MUSIC_KEY = "fluencybr.music";
+const SFX_VOL_KEY = "fluencybr.vol.sfx";
+const MUSIC_VOL_KEY = "fluencybr.vol.music";
 
 let ctx: AudioContext | null = null;
 let muted = false;
 let loaded = false;
 let musicOn = true;
+let sfxVolume = 1;
+let musicVolume = 0.6;
 let musicNodes: { gain: GainNode; timer: number } | null = null;
 
 type Win = Window & { webkitAudioContext?: typeof AudioContext };
+
+function readVolume(key: string, fallback: number) {
+  const raw = window.localStorage.getItem(key);
+  const value = raw === null ? NaN : Number(raw);
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : fallback;
+}
 
 function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
   muted = window.localStorage.getItem(STORAGE_KEY) === "off";
   musicOn = window.localStorage.getItem(MUSIC_KEY) !== "off";
+  sfxVolume = readVolume(SFX_VOL_KEY, 1);
+  musicVolume = readVolume(MUSIC_VOL_KEY, 0.6);
+}
+
+const MUSIC_BASE_GAIN = 0.06;
+
+/** Volume dos efeitos (0 a 1). */
+export function getSfxVolume() {
+  load();
+  return sfxVolume;
+}
+
+export function setSfxVolume(value: number) {
+  load();
+  sfxVolume = Math.min(1, Math.max(0, value));
+  window.localStorage.setItem(SFX_VOL_KEY, String(sfxVolume));
+  return sfxVolume;
+}
+
+/** Volume da música de fundo (0 a 1). */
+export function getMusicVolume() {
+  load();
+  return musicVolume;
+}
+
+export function setMusicVolume(value: number) {
+  load();
+  musicVolume = Math.min(1, Math.max(0, value));
+  window.localStorage.setItem(MUSIC_VOL_KEY, String(musicVolume));
+  if (musicNodes) musicNodes.gain.gain.value = MUSIC_BASE_GAIN * musicVolume;
+  return musicVolume;
 }
 
 export function isMuted() {
@@ -59,6 +100,8 @@ function tone(
 ) {
   const ac = audio();
   if (!ac) return;
+  const level = gain * sfxVolume;
+  if (level <= 0.0002) return;
   const t0 = ac.currentTime + start;
   const osc = ac.createOscillator();
   const amp = ac.createGain();
@@ -66,7 +109,7 @@ function tone(
   osc.frequency.setValueAtTime(freq, t0);
   if (bend) osc.frequency.exponentialRampToValueAtTime(Math.max(40, bend), t0 + duration);
   amp.gain.setValueAtTime(0.0001, t0);
-  amp.gain.exponentialRampToValueAtTime(gain, t0 + 0.012);
+  amp.gain.exponentialRampToValueAtTime(level, t0 + 0.012);
   amp.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
   osc.connect(amp).connect(ac.destination);
   osc.start(t0);
@@ -92,7 +135,7 @@ function noiseBurst(duration = 0.35, gain = 0.18) {
   src.buffer = buffer;
   filter.type = "highpass";
   filter.frequency.value = 1400;
-  amp.gain.value = gain;
+  amp.gain.value = gain * sfxVolume;
   src.connect(filter).connect(amp).connect(ac.destination);
   src.start();
 }
@@ -195,7 +238,7 @@ export function startMusic() {
   const ac = audio();
   if (!ac) return;
   const gain = ac.createGain();
-  gain.gain.value = 0.035; // bem baixinho, só de fundo
+  gain.gain.value = MUSIC_BASE_GAIN * musicVolume; // fundo suave
   gain.connect(ac.destination);
   let step = 0;
   musicStep(ac, gain, step);

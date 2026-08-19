@@ -60,6 +60,8 @@ function LessonPage() {
   const [hint, setHint] = useState(false);
   const [mistakes, setMistakes] = useState(0);
   const [combo, setCombo] = useState(0);
+  const [praise, setPraise] = useState<string | null>(null);
+  const [burst, setBurst] = useState(0);
   const [heartsDialog, setHeartsDialog] = useState(false);
   const [finished, setFinished] = useState<{ xp: number; bonus: number } | null>(null);
 
@@ -84,11 +86,16 @@ function LessonPage() {
     setStatus(ok ? "correct" : "wrong");
     if (ok) {
       sfxCorrect(combo);
+      sfxCoin();
       setCombo((c) => c + 1);
+      const keys = ["praise1", "praise2", "praise3", "praise4", "praise5"] as const;
+      setPraise(t(keys[Math.floor(Math.random() * keys.length)]!));
+      setBurst((b) => b + 1);
     } else {
       sfxWrong();
       sfxHeartLost();
       setCombo(0);
+      setPraise(null);
       setMistakes((m) => m + 1);
       loseHeart();
     }
@@ -110,6 +117,7 @@ function LessonPage() {
     setBuilt([]);
     setTyped("");
     setHint(false);
+    setPraise(null);
   };
 
   const share = async () => {

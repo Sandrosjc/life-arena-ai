@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Flame, Lightbulb, PartyPopper, Share2, X } from "lucide-react";
+import { Check, Flame, Lightbulb, PartyPopper, Repeat2, Share2, Volume2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { HeartsDialog } from "@/components/HeartsDialog";
@@ -9,6 +9,7 @@ import { StatusBar } from "@/components/StatusBar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
+import { speakEn, speakEnWordByWord } from "@/lib/speech";
 import { sfxCoin, sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
 import {
   buildExercises,
@@ -74,7 +75,7 @@ function LessonPage() {
   }, [progress.hearts, progress.isPro, finished]);
 
   const answer =
-    exercise.kind === "choice"
+    exercise.kind === "choice" || exercise.kind === "listen"
       ? (choice ?? "")
       : exercise.kind === "type"
         ? typed
@@ -82,7 +83,8 @@ function LessonPage() {
   const canCheck = answer.trim().length > 0;
 
   const check = () => {
-    const ok = isAnswerCorrect(answer, exercise.phrase.en);
+    const target = exercise.kind === "listen" ? exercise.word : exercise.phrase.en;
+    const ok = isAnswerCorrect(answer, target);
     setStatus(ok ? "correct" : "wrong");
     if (ok) {
       sfxCorrect(combo);
@@ -93,12 +95,23 @@ function LessonPage() {
       setBurst((b) => b + 1);
     } else {
       sfxWrong();
-      sfxHeartLost();
       setCombo(0);
       setPraise(null);
-      setMistakes((m) => m + 1);
-      loseHeart();
+      // Aquecimento e treino de ouvido não tiram vidas: o iniciante só repete.
+      if (exercise.kind !== "listen") {
+        sfxHeartLost();
+        setMistakes((m) => m + 1);
+        loseHeart();
+      }
     }
+  };
+
+  const retry = () => {
+    sfxTap();
+    setStatus("idle");
+    setChoice(null);
+    setBuilt([]);
+    setTyped("");
   };
 
   const next = () => {
@@ -167,15 +180,113 @@ function LessonPage() {
         </div>
 
         <p className="mt-6 text-xs font-extrabold uppercase tracking-widest text-muted-foreground">
-          {exercise.kind === "choice"
+          {exercise.kind === "learn"
+            ? t("warmUp")
+            : exercise.kind === "listen"
+              ? t("listenWord")
+              : exercise.kind === "choice"
             ? t("chooseTranslation")
             : exercise.kind === "type"
               ? t("typeSentence")
               : t("buildSentence")}
         </p>
-        <h1 className="mt-2 font-display text-2xl leading-snug">{nativeText}</h1>
+        <h1 className="mt-2 font-display text-2xl leading-snug">
+          {exercise.kind === "listen" ? t("listenWordTitle") : nativeText}
+        </h1>
 
-        {exercise.kind === "choice" ? (
+        {exercise.kind === "learn" ? (
+          <div className="mt-6 space-y-4">
+            <div className="card-3d rounded-3xl border-primary/30 bg-primary/5 p-5 text-center">
+              <p className="font-display text-3xl leading-snug text-primary">
+                {exercise.phrase.en}
+              </p>
+              <p className="mt-2 text-sm font-bold text-muted-foreground">{nativeText}</p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-2">
+              {exercise.phrase.en.split(" ").map((word, i) => (
+                <button
+                  key={`${word}-${i}`}
+                  type="button"
+                  onClick={() => {
+                    sfxTap();
+                    speakEn(word, 0.5);
+                  }}
+                  className="card-3d rounded-xl border-border bg-card px-3 py-2 text-base font-bold"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  sfxTap();
+                  speakEn(exercise.phrase.en, 0.55);
+                }}
+                className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-secondary-deep bg-secondary px-3 py-3 font-extrabold text-secondary-foreground"
+              >
+                <Volume2 className="size-5 shrink-0" strokeWidth={2.5} />
+                {t("listenSlow")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sfxTap();
+                  speakEnWordByWord(exercise.phrase.en);
+                }}
+                className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-accent-deep bg-accent px-3 py-3 font-extrabold text-accent-foreground"
+              >
+                <Repeat2 className="size-5 shrink-0" strokeWidth={2.5} />
+                {t("repeatWords")}
+              </button>
+            </div>
+
+            <p className="text-center text-sm font-bold text-muted-foreground">
+              {t("warmUpHelp")}
+            </p>
+          </div>
+        ) : exercise.kind === "listen" ? (
+          <div className="mt-6 space-y-4">
+            <button
+              type="button"
+              onClick={() => {
+                sfxTap();
+                speakEn(exercise.word, 0.45);
+              }}
+              className="btn-3d flex w-full items-center justify-center gap-3 rounded-3xl border-secondary-deep bg-secondary px-4 py-8 font-display text-xl text-secondary-foreground"
+            >
+              <Volume2 className="size-8 shrink-0" strokeWidth={2.5} />
+              {t("playAgain")}
+            </button>
+            <div className="space-y-3">
+              {exercise.options.map((option) => {
+                const selected = choice === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    disabled={status !== "idle"}
+                    onClick={() => {
+                      sfxTap();
+                      speakEn(option, 0.5);
+                      setChoice(option);
+                    }}
+                    className={`card-3d w-full rounded-2xl px-4 py-4 text-left text-base font-bold transition-colors ${
+                      selected
+                        ? "border-secondary bg-secondary/10 text-secondary"
+                        : "border-border bg-card text-card-foreground"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : exercise.kind === "choice" ? (
           <div className="mt-6 space-y-3">
             {exercise.options.map((option) => {
               const selected = choice === option;
@@ -310,7 +421,7 @@ function LessonPage() {
                 </p>
                 {status === "wrong" ? (
                   <p className="text-sm font-bold text-destructive">
-                    {t("answerWas")} {exercise.phrase.en}
+                    {t("answerWas")} {exercise.kind === "listen" ? exercise.word : exercise.phrase.en}
                   </p>
                 ) : null}
               </div>
@@ -319,15 +430,29 @@ function LessonPage() {
 
           <button
             type="button"
-            disabled={status === "idle" && !canCheck}
-            onClick={status === "idle" ? check : next}
+            disabled={status === "idle" && !canCheck && exercise.kind !== "learn"}
+            onClick={
+              exercise.kind === "learn"
+                ? next
+                : status === "idle"
+                  ? check
+                  : status === "wrong" && exercise.kind === "listen"
+                    ? retry
+                    : next
+            }
             className={`btn-3d w-full rounded-2xl px-4 py-4 font-display text-lg uppercase tracking-wide ${
               status === "wrong"
                 ? "border-destructive-deep bg-destructive text-destructive-foreground"
                 : "border-primary-deep bg-primary text-primary-foreground"
             }`}
           >
-            {status === "idle" ? t("check") : t("continue")}
+            {exercise.kind === "learn"
+              ? t("gotIt")
+              : status === "idle"
+                ? t("check")
+                : status === "wrong" && exercise.kind === "listen"
+                  ? t("tryAgain")
+                  : t("continue")}
           </button>
         </div>
       </footer>

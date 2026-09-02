@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Music, Music2, SlidersHorizontal, Volume2, VolumeX } from "lucide-react";
+import { Music, Music2, Play, SlidersHorizontal, Volume2, VolumeX } from "lucide-react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
@@ -12,10 +12,13 @@ import {
   isMuted,
   setMusicVolume,
   setSfxVolume,
+  sfxCoin,
+  sfxCorrect,
   sfxTap,
   startMusic,
   toggleMuted,
   toggleMusic,
+  stopMusic,
 } from "@/lib/sfx";
 
 /** Controles separados de música e efeitos, com volume persistido. */
@@ -25,6 +28,13 @@ export function AudioSettings() {
   const [sound, setSound] = useState(true);
   const [musicVol, setMusicVol] = useState(0.6);
   const [sfxVol, setSfxVol] = useState(1);
+  const [tested, setTested] = useState<"music" | "sfx" | null>(null);
+
+  useEffect(() => {
+    if (!tested) return;
+    const id = setTimeout(() => setTested(null), 2000);
+    return () => clearTimeout(id);
+  }, [tested]);
 
   useEffect(() => {
     setMusic(isMusicOn());
@@ -53,6 +63,9 @@ export function AudioSettings() {
                   <Music2 className="size-4 opacity-50" strokeWidth={3} />
                 )}
                 {t("music")}
+                <span className="font-mono text-xs text-muted-foreground">
+                  {Math.round(musicVol * 100)}%
+                </span>
               </span>
               <Switch checked={music} onCheckedChange={() => setMusic(toggleMusic())} />
             </div>
@@ -64,6 +77,24 @@ export function AudioSettings() {
               step={5}
               onValueChange={([v]) => setMusicVol(setMusicVolume((v ?? 0) / 100))}
             />
+            <button
+              type="button"
+              onClick={() => {
+                if (!music) setMusic(toggleMusic());
+                else {
+                  stopMusic();
+                  startMusic();
+                }
+                setTested("music");
+              }}
+              className="btn-3d flex w-full items-center justify-center gap-2 rounded-xl border-accent-deep bg-accent px-3 py-2 text-sm font-extrabold text-accent-foreground"
+            >
+              <Play className="size-4 shrink-0" strokeWidth={3} />
+              {t("test")}
+            </button>
+            {tested === "music" ? (
+              <p className="animate-pop text-xs font-bold text-accent">{t("testOk")}</p>
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -75,6 +106,9 @@ export function AudioSettings() {
                   <VolumeX className="size-4 opacity-50" strokeWidth={3} />
                 )}
                 {t("effects")}
+                <span className="font-mono text-xs text-muted-foreground">
+                  {Math.round(sfxVol * 100)}%
+                </span>
               </span>
               <Switch
                 checked={sound}
@@ -93,6 +127,22 @@ export function AudioSettings() {
               onValueChange={([v]) => setSfxVol(setSfxVolume((v ?? 0) / 100))}
               onValueCommit={() => sfxTap()}
             />
+            <button
+              type="button"
+              onClick={() => {
+                if (!sound) setSound(!toggleMuted());
+                sfxCorrect(1);
+                sfxCoin();
+                setTested("sfx");
+              }}
+              className="btn-3d flex w-full items-center justify-center gap-2 rounded-xl border-secondary-deep bg-secondary px-3 py-2 text-sm font-extrabold text-secondary-foreground"
+            >
+              <Play className="size-4 shrink-0" strokeWidth={3} />
+              {t("test")}
+            </button>
+            {tested === "sfx" ? (
+              <p className="animate-pop text-xs font-bold text-secondary">{t("testOk")}</p>
+            ) : null}
           </div>
         </div>
       </PopoverContent>

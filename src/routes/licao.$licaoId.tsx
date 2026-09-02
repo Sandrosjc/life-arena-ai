@@ -9,6 +9,7 @@ import { StatusBar } from "@/components/StatusBar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
+import { hapticCorrect, hapticWin, hapticWrong } from "@/lib/haptics";
 import { speakEn, speakEnWordByWord } from "@/lib/speech";
 import { sfxCoin, sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
 import {
@@ -89,12 +90,14 @@ function LessonPage() {
     if (ok) {
       sfxCorrect(combo);
       sfxCoin();
+      hapticCorrect();
       setCombo((c) => c + 1);
       const keys = ["praise1", "praise2", "praise3", "praise4", "praise5"] as const;
       setPraise(t(keys[Math.floor(Math.random() * keys.length)]!));
       setBurst((b) => b + 1);
     } else {
       sfxWrong();
+      hapticWrong();
       setCombo(0);
       setPraise(null);
       // Aquecimento e treino de ouvido não tiram vidas: o iniciante só repete.
@@ -121,6 +124,7 @@ function LessonPage() {
       const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
       const bonus = completeLesson(licaoId, stars, xp);
       sfxWin();
+      hapticWin();
       setFinished({ xp, bonus });
       return;
     }

@@ -6,3 +6,4 @@
 - [ ] Só liberar a próxima etapa depois de concluir a anterior
 - [ ] Mais som em cada micro-acerto
 - [ ] Botão "Testar" para música e efeitos no painel de áudio, com volume em tempo real
+- [ ] Vibração (haptics) opcional ao acertar e concluir lição

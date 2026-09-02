@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Music, Music2, Play, SlidersHorizontal, Volume2, VolumeX } from "lucide-react";
+import { Music, Music2, Play, Vibrate, SlidersHorizontal, Volume2, VolumeX } from "lucide-react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { hapticCorrect, hapticsSupported, isHapticsOn, toggleHaptics } from "@/lib/haptics";
 import { useI18n } from "@/lib/i18n";
 import {
   getMusicVolume,
@@ -29,6 +30,8 @@ export function AudioSettings() {
   const [musicVol, setMusicVol] = useState(0.6);
   const [sfxVol, setSfxVol] = useState(1);
   const [tested, setTested] = useState<"music" | "sfx" | null>(null);
+  const [haptics, setHaptics] = useState(false);
+  const [canVibrate, setCanVibrate] = useState(false);
 
   useEffect(() => {
     if (!tested) return;
@@ -41,6 +44,8 @@ export function AudioSettings() {
     setSound(!isMuted());
     setMusicVol(getMusicVolume());
     setSfxVol(getSfxVolume());
+    setHaptics(isHapticsOn());
+    setCanVibrate(hapticsSupported());
     if (isMusicOn()) startMusic();
   }, []);
 
@@ -144,6 +149,25 @@ export function AudioSettings() {
               <p className="animate-pop text-xs font-bold text-secondary">{t("testOk")}</p>
             ) : null}
           </div>
+          {canVibrate ? (
+            <div className="flex items-center justify-between gap-2 border-t-2 border-border pt-3">
+              <span className="flex items-center gap-2 text-sm font-extrabold">
+                <Vibrate
+                  className={`size-4 ${haptics ? "text-primary" : "opacity-50"}`}
+                  strokeWidth={3}
+                />
+                {t("haptics")}
+              </span>
+              <Switch
+                checked={haptics}
+                onCheckedChange={() => {
+                  const next = toggleHaptics();
+                  setHaptics(next);
+                  if (next) hapticCorrect();
+                }}
+              />
+            </div>
+          ) : null}
         </div>
       </PopoverContent>
     </Popover>

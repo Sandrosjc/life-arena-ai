@@ -332,7 +332,12 @@ export function buildExercises(lesson: Lesson, module: Module): Exercise[] {
     };
   };
 
-  return lesson.phrases.flatMap((phrase, index) => {
+  // Passinhos pequenos: as frases mais curtas vêm primeiro.
+  const ordered = [...lesson.phrases].sort(
+    (a, b) => a.en.split(" ").length - b.en.split(" ").length,
+  );
+
+  return ordered.flatMap((phrase, index) => {
     const word = keyWord(phrase);
     const otherWords = shuffle(
       [...lesson.phrases, ...pool]

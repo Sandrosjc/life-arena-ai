@@ -5,3 +5,4 @@
 - [ ] Micro-passos ainda menores no Módulo 1 (frases curtas primeiro)
 - [ ] Só liberar a próxima etapa depois de concluir a anterior
 - [ ] Mais som em cada micro-acerto
+- [ ] Botão "Testar" para música e efeitos no painel de áudio, com volume em tempo real

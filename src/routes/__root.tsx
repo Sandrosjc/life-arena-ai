@@ -11,10 +11,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { GameProvider } from "../lib/game";
-import { LocaleProvider } from "../lib/i18n";
-import { Toaster } from "../components/ui/sonner";
-import { SecretAdminTrigger } from "../components/SecretAdminTrigger";
+import { GameProvider } from "@/lib/game";
+import { LocaleProvider } from "@/lib/i18n";
+import { Toaster } from "@/components/ui/sonner";
+import { SecretAdminTrigger } from "@/components/SecretAdminTrigger";
 
 function NotFoundComponent() {
   return (

@@ -447,6 +447,7 @@ function LessonPage() {
               </p>
             ) : null}
           </div>
+          )
         ) : (
           <div className="mt-6">
             <div className="card-3d min-h-24 rounded-2xl border-dashed border-border bg-muted/40 p-3">

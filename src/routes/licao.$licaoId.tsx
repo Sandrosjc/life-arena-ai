@@ -68,6 +68,8 @@ function LessonPage() {
   const [finished, setFinished] = useState<{ xp: number; bonus: number } | null>(null);
 
   const [speaking, setSpeaking] = useState<"slow" | "words" | null>(null);
+  const [memorizing, setMemorizing] = useState(false);
+  const [rep, setRep] = useState(0);
 
   const exercise = exercises[index]!;
   const total = exercises.length;
@@ -85,6 +87,31 @@ function LessonPage() {
   useEffect(() => {
     preloadEn(exercise.phrase.en, 0.55);
   }, [exercise.phrase.en]);
+
+  // Antes de escrever: a frase toca 3 vezes, devagar, para memorizar.
+  useEffect(() => {
+    if (exercise.kind !== "type") {
+      setMemorizing(false);
+      return;
+    }
+    setMemorizing(true);
+    setRep(0);
+    let cancelled = false;
+    void (async () => {
+      for (let i = 1; i <= 3; i += 1) {
+        if (cancelled) return;
+        setRep(i);
+        await speakEn(exercise.phrase.en, 0.5);
+        if (cancelled) return;
+        await new Promise((r) => setTimeout(r, 700));
+      }
+      if (!cancelled) setMemorizing(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, exercise.kind, exercise.phrase.en]);
 
 
   useEffect(() => {
@@ -342,6 +369,47 @@ function LessonPage() {
             })}
           </div>
         ) : exercise.kind === "type" ? (
+          memorizing ? (
+            <div className="mt-6 space-y-5">
+              <div className="card-3d rounded-3xl border-primary/30 bg-primary/5 p-5 text-center">
+                <p className="flex items-center justify-center gap-2 text-xs font-extrabold uppercase tracking-widest text-primary">
+                  <Volume2 className="size-4 shrink-0 animate-pulse" strokeWidth={2.5} />
+                  {t("memorizeTitle")}
+                </p>
+                <p className="mt-3 font-display text-3xl leading-snug text-primary">
+                  {exercise.phrase.en}
+                </p>
+                <p className="mt-2 text-sm font-bold text-muted-foreground">{nativeText}</p>
+              </div>
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3].map((n) => (
+                  <span
+                    key={n}
+                    className={`size-4 rounded-full transition-colors ${
+                      n < rep
+                        ? "bg-primary"
+                        : n === rep
+                          ? "animate-pulse bg-secondary"
+                          : "bg-muted"
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="text-center text-sm font-bold text-muted-foreground">
+                {t("memorizeHelp")}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  sfxTap();
+                  setMemorizing(false);
+                }}
+                className="btn-3d w-full rounded-2xl border-secondary-deep bg-secondary px-4 py-3 font-extrabold text-secondary-foreground"
+              >
+                {t("startTyping")}
+              </button>
+            </div>
+          ) : (
           <div className="mt-6 space-y-3">
             <input
               value={typed}

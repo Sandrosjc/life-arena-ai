@@ -103,7 +103,7 @@ export async function speakEn(text: string, rate = 0.65) {
   const mine = token;
   stopCurrent();
   const speed = Math.max(0.25, Math.min(1.5, rate));
-  const url = await fetchAudio(text.trim(), speed);
+  const url = await fetchAudioWithTimeout(text.trim(), speed);
   if (mine !== token) return;
   if (!url) {
     browserFallback(text, rate);
@@ -124,7 +124,7 @@ export async function speakEnWordByWord(text: string) {
   const words = text.split(" ").filter(Boolean);
   for (const word of words) {
     if (mine !== token) return;
-    const url = await fetchAudio(word, 0.5);
+    const url = await fetchAudioWithTimeout(word, 0.5);
     if (mine !== token) return;
     if (url) await play(url, mine);
     else browserFallback(word, 0.5);
@@ -133,7 +133,7 @@ export async function speakEnWordByWord(text: string) {
   }
 
   if (mine !== token) return;
-  const full = await fetchAudio(text.trim(), 0.65);
+  const full = await fetchAudioWithTimeout(text.trim(), 0.65);
   if (mine !== token) return;
   if (full) await play(full, mine);
   else browserFallback(text, 0.65);

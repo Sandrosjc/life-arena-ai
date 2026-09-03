@@ -7,6 +7,8 @@ import { getSfxVolume, isMuted } from "@/lib/sfx";
 
 const cache = new Map<string, string>();
 const pending = new Map<string, Promise<string | null>>();
+/** Tempo máximo de espera pela voz de IA antes de usar a voz do navegador. */
+const TTS_TIMEOUT_MS = 6000;
 let current: HTMLAudioElement | null = null;
 let token = 0;
 

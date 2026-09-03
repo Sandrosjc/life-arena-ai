@@ -68,6 +68,8 @@ function LessonPage() {
   const [finished, setFinished] = useState<{ xp: number; bonus: number } | null>(null);
 
   const [speaking, setSpeaking] = useState<"slow" | "words" | null>(null);
+  const [memorizing, setMemorizing] = useState(false);
+  const [rep, setRep] = useState(0);
 
   const exercise = exercises[index]!;
   const total = exercises.length;
@@ -85,6 +87,31 @@ function LessonPage() {
   useEffect(() => {
     preloadEn(exercise.phrase.en, 0.55);
   }, [exercise.phrase.en]);
+
+  // Antes de escrever: a frase toca 3 vezes, devagar, para memorizar.
+  useEffect(() => {
+    if (exercise.kind !== "type") {
+      setMemorizing(false);
+      return;
+    }
+    setMemorizing(true);
+    setRep(0);
+    let cancelled = false;
+    void (async () => {
+      for (let i = 1; i <= 3; i += 1) {
+        if (cancelled) return;
+        setRep(i);
+        await speakEn(exercise.phrase.en, 0.5);
+        if (cancelled) return;
+        await new Promise((r) => setTimeout(r, 700));
+      }
+      if (!cancelled) setMemorizing(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, exercise.kind, exercise.phrase.en]);
 
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Flame, Lightbulb, PartyPopper, Repeat2, Share2, Volume2, X } from "lucide-react";
+import { Check, Flame, Lightbulb, Loader2, PartyPopper, Repeat2, Share2, Volume2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { HeartsDialog } from "@/components/HeartsDialog";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
 import { hapticCorrect, hapticWin, hapticWrong } from "@/lib/haptics";
-import { speakEn, speakEnWordByWord } from "@/lib/speech";
+import { preloadEn, speakEn, speakEnWordByWord } from "@/lib/speech";
 import { sfxCoin, sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
 import {
   buildExercises,
@@ -226,27 +226,38 @@ function LessonPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
+                disabled={speaking !== null}
                 onClick={() => {
                   sfxTap();
-                  speakEn(exercise.phrase.en, 0.55);
+                  void withSpeaking("slow", speakEn(exercise.phrase.en, 0.55));
                 }}
-                className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-secondary-deep bg-secondary px-3 py-3 font-extrabold text-secondary-foreground"
+                className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-secondary-deep bg-secondary px-3 py-3 font-extrabold text-secondary-foreground disabled:opacity-70"
               >
-                <Volume2 className="size-5 shrink-0" strokeWidth={2.5} />
+                {speaking === "slow" ? (
+                  <Loader2 className="size-5 shrink-0 animate-spin" strokeWidth={2.5} />
+                ) : (
+                  <Volume2 className="size-5 shrink-0" strokeWidth={2.5} />
+                )}
                 {t("listenSlow")}
               </button>
               <button
                 type="button"
+                disabled={speaking !== null}
                 onClick={() => {
                   sfxTap();
-                  speakEnWordByWord(exercise.phrase.en);
+                  void withSpeaking("words", speakEnWordByWord(exercise.phrase.en));
                 }}
-                className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-accent-deep bg-accent px-3 py-3 font-extrabold text-accent-foreground"
+                className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-accent-deep bg-accent px-3 py-3 font-extrabold text-accent-foreground disabled:opacity-70"
               >
-                <Repeat2 className="size-5 shrink-0" strokeWidth={2.5} />
+                {speaking === "words" ? (
+                  <Loader2 className="size-5 shrink-0 animate-spin" strokeWidth={2.5} />
+                ) : (
+                  <Repeat2 className="size-5 shrink-0" strokeWidth={2.5} />
+                )}
                 {t("repeatWords")}
               </button>
             </div>
+
 
             <p className="text-center text-sm font-bold text-muted-foreground">
               {t("warmUpHelp")}

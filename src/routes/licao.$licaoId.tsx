@@ -67,9 +67,25 @@ function LessonPage() {
   const [heartsDialog, setHeartsDialog] = useState(false);
   const [finished, setFinished] = useState<{ xp: number; bonus: number } | null>(null);
 
+  const [speaking, setSpeaking] = useState<"slow" | "words" | null>(null);
+
   const exercise = exercises[index]!;
   const total = exercises.length;
   const nativeText = exercise.phrase[locale === "en" ? "pt" : locale];
+
+  const withSpeaking = async (kind: "slow" | "words", task: Promise<void>) => {
+    setSpeaking(kind);
+    try {
+      await task;
+    } finally {
+      setSpeaking(null);
+    }
+  };
+
+  useEffect(() => {
+    preloadEn(exercise.phrase.en, 0.55);
+  }, [exercise.phrase.en]);
+
 
   useEffect(() => {
     if (progress.hearts === 0 && !progress.isPro && !finished) setHeartsDialog(true);

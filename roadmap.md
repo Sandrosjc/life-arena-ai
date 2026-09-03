@@ -8,3 +8,5 @@
 - [ ] Botão "Testar" para música e efeitos no painel de áudio, com volume em tempo real
 - [ ] Vibração (haptics) opcional ao acertar e concluir lição
 - [x] Voz real (TTS por IA) com fila e cache tocando no celular
+- [ ] Antes do exercício de escrever: frase repetida 3x em voz alta para memorizar
+- [ ] Tela "Meu progresso": lições concluídas, estrelas e frases dominadas

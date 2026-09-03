@@ -56,6 +56,22 @@ async function fetchAudio(text: string, speed: number): Promise<string | null> {
   return request;
 }
 
+/**
+ * Busca o áudio de IA com limite de tempo. Se o endpoint falhar ou demorar,
+ * resolve `null` (para cair na voz do navegador) sem travar a tela;
+ * a requisição continua em segundo plano e já fica em cache para a próxima vez.
+ */
+async function fetchAudioWithTimeout(text: string, speed: number): Promise<string | null> {
+  const request = fetchAudio(text, speed);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<null>((resolve) => {
+    timer = setTimeout(() => resolve(null), TTS_TIMEOUT_MS);
+  });
+  const result = await Promise.race([request, timeout]);
+  clearTimeout(timer);
+  return result;
+}
+
 function stopCurrent() {
   if (current) {
     current.pause();

@@ -7,3 +7,4 @@
 - [ ] Mais som em cada micro-acerto
 - [ ] Botão "Testar" para música e efeitos no painel de áudio, com volume em tempo real
 - [ ] Vibração (haptics) opcional ao acertar e concluir lição
+- [x] Voz real (TTS por IA) com fila e cache tocando no celular

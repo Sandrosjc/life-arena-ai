@@ -5,13 +5,24 @@ import { toast } from "sonner";
 
 import { HeartsDialog } from "@/components/HeartsDialog";
 import { Confetti } from "@/components/Confetti";
+import { Rocket } from "@/components/Rocket";
 import { StatusBar } from "@/components/StatusBar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
 import { hapticCorrect, hapticWin, hapticWrong } from "@/lib/haptics";
 import { preloadEn, speakEn, speakEnWordByWord } from "@/lib/speech";
-import { sfxCoin, sfxCorrect, sfxHeartLost, sfxKey, sfxTap, sfxWin, sfxWrong } from "@/lib/sfx";
+import {
+  sfxApplause,
+  sfxCoin,
+  sfxCorrect,
+  sfxHeartLost,
+  sfxKey,
+  sfxRocket,
+  sfxTap,
+  sfxWin,
+  sfxWrong,
+} from "@/lib/sfx";
 import {
   buildExercises,
   findLesson,
@@ -133,6 +144,8 @@ function LessonPage() {
     if (ok) {
       sfxCorrect(combo);
       sfxCoin();
+      sfxApplause(1 + combo * 0.2);
+      if (combo + 1 >= 3) sfxRocket();
       hapticCorrect();
       setCombo((c) => c + 1);
       const keys = ["praise1", "praise2", "praise3", "praise4", "praise5"] as const;
@@ -167,6 +180,8 @@ function LessonPage() {
       const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
       const bonus = completeLesson(licaoId, stars, xp);
       sfxWin();
+      sfxApplause(2);
+      sfxRocket();
       hapticWin();
       setFinished({ xp, bonus });
       return;
@@ -201,7 +216,12 @@ function LessonPage() {
   return (
     <div className="min-h-screen bg-background">
       <StatusBar />
-      {status === "correct" ? <Confetti key={burst} pieces={24} /> : null}
+      {status === "correct" ? (
+        <>
+          <Confetti key={burst} pieces={combo >= 2 ? 40 : 24} />
+          {combo >= 3 ? <Rocket key={`r${burst}`} count={2} /> : null}
+        </>
+      ) : null}
 
       <div className="mx-auto max-w-2xl px-4 pt-4">
         <div className="flex items-center gap-3">
@@ -566,7 +586,12 @@ function LessonPage() {
       />
 
       <Dialog open={finished !== null}>
-        {finished ? <Confetti pieces={80} /> : null}
+        {finished ? (
+          <>
+            <Confetti pieces={90} />
+            <Rocket count={5} />
+          </>
+        ) : null}
         <DialogContent className="rounded-3xl border-2 text-center sm:max-w-sm">
           <PartyPopper className="mx-auto size-16 animate-pop text-gold" strokeWidth={2} />
           <h2 className="font-display text-2xl">{t("lessonDone")}</h2>

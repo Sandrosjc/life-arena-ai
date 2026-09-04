@@ -15,3 +15,5 @@
 - [x] Nome do curso: Chequetto Inglês Fácil
 - [x] Duas lições iniciais bem fáceis (1-2 palavras)
 - [x] Palmas, foguete e serpentina nos acertos e ao concluir
+
+- [x] Mascote gatinho fofo como símbolo do curso

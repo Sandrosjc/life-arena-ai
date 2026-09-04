@@ -13,16 +13,16 @@ import { isMuted, sfxCoin, sfxTap, sfxWin, toggleMuted } from "@/lib/sfx";
 export const Route = createFileRoute("/loja")({
   head: () => ({
     meta: [
-      { title: "Loja e Plano Pro — Xequeto Inglês Fácil" },
+      { title: "Loja e Plano Pro — Chequetto Inglês Fácil" },
       {
         name: "description",
         content:
           "Compre vidas extras, pacotes de moedas e assine o Pro com vidas ilimitadas, zero anúncios e IA sem limite.",
       },
-      { property: "og:title", content: "Loja e Plano Pro — Xequeto Inglês Fácil" },
+      { property: "og:title", content: "Loja e Plano Pro — Chequetto Inglês Fácil" },
       {
         property: "og:description",
-        content: "Vidas extras, moedas e o plano Pro do Xequeto Inglês Fácil.",
+        content: "Vidas extras, moedas e o plano Pro do Chequetto Inglês Fácil.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -11,13 +11,13 @@ import { ALL_LESSONS, MODULES } from "@/lib/lessons";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Trilha de Aventura — Xequeto Inglês Fácil" },
+      { title: "Trilha de Aventura — Chequetto Inglês Fácil" },
       {
         name: "description",
         content:
-          "Avance pela trilha de fases do Xequeto Inglês Fácil: fundamentos, viagem e inglês corporativo em lições rápidas.",
+          "Avance pela trilha de fases do Chequetto Inglês Fácil: fundamentos, viagem e inglês corporativo em lições rápidas.",
       },
-      { property: "og:title", content: "Trilha de Aventura — Xequeto Inglês Fácil" },
+      { property: "og:title", content: "Trilha de Aventura — Chequetto Inglês Fácil" },
       {
         property: "og:description",
         content: "Fases desbloqueáveis, vidas, ofensiva e XP para aprender inglês todo dia.",

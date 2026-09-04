@@ -12,7 +12,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
 type Dict = Record<string, string>;
 
 const pt: Dict = {
-  appName: "Xequeto Inglês Fácil",
+  appName: "Chequetto Inglês Fácil",
   tabPath: "Trilha",
   tabChat: "Conversa",
   tabShop: "Loja",

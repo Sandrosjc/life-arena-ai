@@ -32,6 +32,26 @@ export const MODULES: Module[] = [
     subtitle: { pt: "Iniciante", es: "Principiante", en: "Beginner" },
     lessons: [
       {
+        id: "m1l0",
+        title: { pt: "Primeiras palavrinhas", es: "Primeras palabritas", en: "First little words" },
+        phrases: [
+          { en: "Hi", pt: "Oi", es: "Hola" },
+          { en: "Yes", pt: "Sim", es: "Sí" },
+          { en: "No", pt: "Não", es: "No" },
+          { en: "Water", pt: "Água", es: "Agua" },
+        ],
+      },
+      {
+        id: "m1l0b",
+        title: { pt: "Duas palavrinhas", es: "Dos palabritas", en: "Two little words" },
+        phrases: [
+          { en: "Thank you", pt: "Obrigado", es: "Gracias" },
+          { en: "Good night", pt: "Boa noite", es: "Buenas noches" },
+          { en: "I am happy", pt: "Eu estou feliz", es: "Estoy feliz" },
+          { en: "See you", pt: "Até logo", es: "Hasta luego" },
+        ],
+      },
+      {
         id: "m1l1",
         title: { pt: "Primeiros olás", es: "Primeros saludos", en: "First hellos" },
         phrases: [
@@ -308,6 +328,16 @@ export function buildExercises(lesson: Lesson, module: Module): Exercise[] {
     .filter((p) => !lesson.phrases.some((own) => own.en === p.en));
 
   const production = (phrase: Phrase, index: number): Exercise => {
+    const words0 = phrase.en.split(" ");
+    // Bem no comecinho: uma ou duas palavras so pedem escolha simples.
+    if (words0.length <= 2 && index === 0) {
+      const distractors = shuffle(pool).slice(0, 2).map((p) => p.en);
+      return {
+        kind: "choice" as const,
+        phrase,
+        options: shuffle([phrase.en, ...distractors]),
+      };
+    }
     const cycle = index % 3;
     if (cycle === 0) {
       const distractors = shuffle(pool).slice(0, 2).map((p) => p.en);

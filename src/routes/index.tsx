@@ -3,6 +3,7 @@ import { Check, Crown, Lock, Star } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { BrainPower } from "@/components/BrainPower";
+import gatinho from "@/assets/gatinho.png";
 import { useGame } from "@/lib/game";
 import { sfxTap } from "@/lib/sfx";
 import { useI18n } from "@/lib/i18n";
@@ -11,13 +12,13 @@ import { ALL_LESSONS, MODULES } from "@/lib/lessons";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Trilha de Aventura — FluencyBR AI" },
+      { title: "Trilha de Aventura — Chequetto Inglês Fácil" },
       {
         name: "description",
         content:
-          "Avance pela trilha de fases do FluencyBR AI: fundamentos, viagem e inglês corporativo em lições rápidas.",
+          "Avance pela trilha de fases do Chequetto Inglês Fácil: fundamentos, viagem e inglês corporativo em lições rápidas.",
       },
-      { property: "og:title", content: "Trilha de Aventura — FluencyBR AI" },
+      { property: "og:title", content: "Trilha de Aventura — Chequetto Inglês Fácil" },
       {
         property: "og:description",
         content: "Fases desbloqueáveis, vidas, ofensiva e XP para aprender inglês todo dia.",
@@ -58,8 +59,19 @@ function PathPage() {
       <BrainPower />
 
       <section className="mb-6 mt-4 animate-rise rounded-3xl bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
-        <h1 className="font-display text-2xl leading-tight">{t("pathTitle")}</h1>
-        <p className="mt-1 text-sm opacity-90">{t("pathSubtitle")}</p>
+        <div className="flex items-center gap-3">
+          <img
+            src={gatinho}
+            alt="Chequetto, o gatinho mascote do curso de inglês"
+            width={816}
+            height={816}
+            className="size-20 shrink-0 animate-float drop-shadow-md"
+          />
+          <div>
+            <h1 className="font-display text-2xl leading-tight">{t("pathTitle")}</h1>
+            <p className="mt-1 text-sm opacity-90">{t("pathSubtitle")}</p>
+          </div>
+        </div>
         <div className="mt-4 flex items-center gap-4 text-sm font-bold">
           <span className="rounded-full bg-background/20 px-3 py-1">
             {t("level")} {level}

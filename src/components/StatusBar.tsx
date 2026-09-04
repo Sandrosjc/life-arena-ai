@@ -1,6 +1,7 @@
 import { Flame, Heart, Infinity as InfinityIcon, Gem } from "lucide-react";
 
 import { AudioSettings } from "@/components/AudioSettings";
+import gatinho from "@/assets/gatinho.png";
 import { MAX_HEARTS, useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
 
@@ -12,6 +13,14 @@ export function StatusBar() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto grid max-w-2xl grid-cols-3 items-center gap-2 px-4 py-3">
         <div className="flex items-center gap-1.5">
+          <img
+            src={gatinho}
+            alt="Mascote gatinho do Chequetto Inglês Fácil"
+            width={816}
+            height={816}
+            loading="lazy"
+            className="size-7 shrink-0"
+          />
           <Flame className="size-6 shrink-0 text-streak" strokeWidth={2.5} />
           <span className="font-display text-lg font-extrabold text-streak">
             {progress.streak}

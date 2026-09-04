@@ -191,6 +191,27 @@ export function sfxBrain() {
 /** Clique de tecla ao digitar (bem suave). */
 export const sfxKey = () => blip(760, 0.03, "sine", 0.05);
 
+/** Palmas da plateia comemorando o acerto. */
+export function sfxApplause(intensity = 1) {
+  const claps = Math.round(14 * Math.min(2, Math.max(0.5, intensity)));
+  for (let i = 0; i < claps; i += 1) {
+    const at = Math.random() * 0.75;
+    window.setTimeout(() => noiseBurst(0.09, 0.07 + Math.random() * 0.05), at * 1000);
+  }
+  noiseBurst(0.5, 0.05);
+}
+
+/** Foguetinho subindo e estourando. */
+export function sfxRocket() {
+  tone(180, 0, 0.6, "sawtooth", 0.1, 1400);
+  noiseBurst(0.55, 0.06);
+  window.setTimeout(() => {
+    noiseBurst(0.5, 0.16);
+    [1046.5, 1318.5, 1568].forEach((f, i) => tone(f, i * 0.04, 0.25, "triangle", 0.14));
+  }, 560);
+}
+
+
 /* ---------------- Música de fundo (loop suave, volume baixo) ---------------- */
 
 const MELODY = [

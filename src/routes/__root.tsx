@@ -81,13 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "FluencyBR AI — Inglês gamificado com IA" },
+      { title: "Xequeto Inglês Fácil — Inglês gamificado com IA" },
       {
         name: "description",
         content:
           "Aprenda inglês jogando: trilha de fases, lições rápidas, vidas, ofensiva e conversas com IA.",
       },
-      { property: "og:title", content: "FluencyBR AI — Inglês gamificado com IA" },
+      { property: "og:title", content: "Xequeto Inglês Fácil — Inglês gamificado com IA" },
       {
         property: "og:description",
         content:

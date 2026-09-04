@@ -22,12 +22,12 @@ import {
 export const Route = createFileRoute("/licao/$licaoId")({
   head: () => ({
     meta: [
-      { title: "Lição interativa — FluencyBR AI" },
+      { title: "Lição interativa — Xequeto Inglês Fácil" },
       {
         name: "description",
         content: "Traduza frases, monte sentenças em inglês e ganhe XP com feedback instantâneo.",
       },
-      { property: "og:title", content: "Lição interativa — FluencyBR AI" },
+      { property: "og:title", content: "Lição interativa — Xequeto Inglês Fácil" },
       {
         property: "og:description",
         content: "Exercícios rápidos de inglês com correção na hora e sistema de vidas.",
@@ -181,12 +181,12 @@ function LessonPage() {
   };
 
   const share = async () => {
-    const text = `Acabei de concluir "${entry.lesson.title[locale]}" no FluencyBR AI e ganhei ${
+    const text = `Acabei de concluir "${entry.lesson.title[locale]}" no Xequeto Inglês Fácil e ganhei ${
       (finished?.xp ?? 0) + (finished?.bonus ?? 0)
     } XP! 🔥 ${progress.streak} dias de ofensiva.`;
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: "FluencyBR AI", text });
+        await navigator.share({ title: "Xequeto Inglês Fácil", text });
       } else {
         await navigator.clipboard.writeText(text);
         toast.success("Conquista copiada!");

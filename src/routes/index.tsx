@@ -11,13 +11,13 @@ import { ALL_LESSONS, MODULES } from "@/lib/lessons";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Trilha de Aventura — FluencyBR AI" },
+      { title: "Trilha de Aventura — Xequeto Inglês Fácil" },
       {
         name: "description",
         content:
-          "Avance pela trilha de fases do FluencyBR AI: fundamentos, viagem e inglês corporativo em lições rápidas.",
+          "Avance pela trilha de fases do Xequeto Inglês Fácil: fundamentos, viagem e inglês corporativo em lições rápidas.",
       },
-      { property: "og:title", content: "Trilha de Aventura — FluencyBR AI" },
+      { property: "og:title", content: "Trilha de Aventura — Xequeto Inglês Fácil" },
       {
         property: "og:description",
         content: "Fases desbloqueáveis, vidas, ofensiva e XP para aprender inglês todo dia.",

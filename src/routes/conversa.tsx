@@ -13,13 +13,13 @@ import { sfxCoin, sfxTap } from "@/lib/sfx";
 export const Route = createFileRoute("/conversa")({
   head: () => ({
     meta: [
-      { title: "Simulador de conversa com IA — FluencyBR AI" },
+      { title: "Simulador de conversa com IA — Xequeto Inglês Fácil" },
       {
         name: "description",
         content:
           "Converse em inglês com uma IA em cenários reais como pedir um café em Nova York ou passar pela alfândega.",
       },
-      { property: "og:title", content: "Simulador de conversa com IA — FluencyBR AI" },
+      { property: "og:title", content: "Simulador de conversa com IA — Xequeto Inglês Fácil" },
       {
         property: "og:description",
         content: "Pratique inglês falado com feedback instantâneo de pronúncia e gramática.",

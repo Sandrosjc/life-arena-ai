@@ -201,6 +201,25 @@ export function sfxApplause(intensity = 1) {
   noiseBurst(0.5, 0.05);
 }
 
+/** Fanfarra máxima: usada no botão principal da tela inicial e grandes conquistas. */
+export function sfxFanfare() {
+  const seq = [392, 523.25, 659.25, 783.99, 1046.5];
+  seq.forEach((f, i) => {
+    tone(f, i * 0.09, 0.35, "triangle", 0.22);
+    tone(f * 2, i * 0.09, 0.2, "sine", 0.09);
+  });
+  window.setTimeout(() => {
+    [523.25, 659.25, 783.99, 1046.5].forEach((f) => {
+      tone(f, 0, 0.9, "triangle", 0.18);
+      tone(f / 2, 0, 0.9, "sine", 0.1);
+    });
+    noiseBurst(0.8, 0.14);
+  }, 480);
+  for (let i = 0; i < 22; i += 1) {
+    window.setTimeout(() => noiseBurst(0.09, 0.06 + Math.random() * 0.05), 400 + Math.random() * 800);
+  }
+}
+
 /** Foguetinho subindo e estourando. */
 export function sfxRocket() {
   tone(180, 0, 0.6, "sawtooth", 0.1, 1400);

@@ -59,7 +59,12 @@ function PathPage() {
       <BrainPower />
 
       <section className="mb-6 mt-4 animate-rise rounded-3xl bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
-        <div className="flex items-center gap-3">
+        <div className="flex justify-center">
+          <span className="animate-pulse rounded-full bg-gold px-4 py-1.5 font-display text-sm font-extrabold uppercase tracking-widest text-gold-foreground shadow-lg">
+            {t("heroBadge")}
+          </span>
+        </div>
+        <div className="mt-3 flex items-center gap-3">
           <img
             src={gatinho}
             alt="Chequetto, o gatinho mascote do curso de inglês"
@@ -68,10 +73,18 @@ function PathPage() {
             className="size-20 shrink-0 animate-float drop-shadow-md"
           />
           <div>
-            <h1 className="font-display text-2xl leading-tight">{t("pathTitle")}</h1>
-            <p className="mt-1 text-sm opacity-90">{t("pathSubtitle")}</p>
+            <h1 className="font-display text-3xl font-extrabold leading-tight">{t("heroTitle")}</h1>
+            <p className="mt-1 text-sm opacity-90">{t("heroSubtitle")}</p>
           </div>
         </div>
+        <Link
+          to="/licao/$licaoId"
+          params={{ licaoId: nextLessonId }}
+          onClick={() => { sfxFanfare(); hapticWin(); }}
+          className="btn-3d mt-4 flex items-center justify-center gap-2 rounded-2xl bg-gold px-5 py-4 font-display text-lg font-extrabold text-gold-foreground shadow-xl hover:scale-[1.02]"
+        >
+          {completedCount === 0 ? t("ctaStart") : t("ctaContinue")}
+        </Link>
         <div className="mt-4 flex items-center gap-4 text-sm font-bold">
           <span className="rounded-full bg-background/20 px-3 py-1">
             {t("level")} {level}

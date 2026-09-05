@@ -22,3 +22,5 @@
 - [ ] Idioma automático por região (fuso horário + idioma do aparelho)
 - [ ] Sem tela de entrar na primeira visita: a pessoa conhece o app livremente
 - [ ] Na segunda visita, convite de cadastro com conta real (e-mail e senha), podendo pular
+- [ ] Abertura de marca: tela/topo deixando claro "Chequetto — o melhor curso de inglês"
+- [ ] Espaços de publicidade (banner + vídeo) na trilha, escondidos para quem é Pro

@@ -5,7 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { BrainPower } from "@/components/BrainPower";
 import gatinho from "@/assets/gatinho.png";
 import { useGame } from "@/lib/game";
-import { sfxTap } from "@/lib/sfx";
+import { sfxFanfare, sfxTap } from "@/lib/sfx";
+import { hapticWin } from "@/lib/haptics";
 import { useI18n } from "@/lib/i18n";
 import { ALL_LESSONS, MODULES } from "@/lib/lessons";
 
@@ -53,6 +54,9 @@ function PathPage() {
   const { progress, isUnlocked, level } = useGame();
 
   const completedCount = Object.keys(progress.completed).length;
+  const nextLessonId =
+    ALL_LESSONS[Math.min(completedCount, ALL_LESSONS.length - 1)]?.lesson.id ??
+    ALL_LESSONS[0].lesson.id;
 
   return (
     <AppShell>

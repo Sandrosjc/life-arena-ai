@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConversaRouteImport } from './routes/conversa'
 import { Route as LojaRouteImport } from './routes/loja'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
@@ -18,6 +19,11 @@ import { Route as LicaoLicaoIdRouteImport } from './routes/licao.$licaoId'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConversaRoute = ConversaRouteImport.update({
@@ -43,6 +49,7 @@ const LicaoLicaoIdRoute = LicaoLicaoIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/conversa': typeof ConversaRoute
   '/loja': typeof LojaRoute
   '/api/tts': typeof ApiTtsRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/conversa': typeof ConversaRoute
   '/loja': typeof LojaRoute
   '/api/tts': typeof ApiTtsRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/conversa': typeof ConversaRoute
   '/loja': typeof LojaRoute
   '/api/tts': typeof ApiTtsRoute
@@ -65,14 +74,23 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/conversa' | '/loja' | '/api/tts' | '/licao/$licaoId'
+  fullPaths:
+    '/' | '/auth' | '/conversa' | '/loja' | '/api/tts' | '/licao/$licaoId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conversa' | '/loja' | '/api/tts' | '/licao/$licaoId'
-  id: '__root__' | '/' | '/conversa' | '/loja' | '/api/tts' | '/licao/$licaoId'
+  to: '/' | '/auth' | '/conversa' | '/loja' | '/api/tts' | '/licao/$licaoId'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/conversa'
+    | '/loja'
+    | '/api/tts'
+    | '/licao/$licaoId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   ConversaRoute: typeof ConversaRoute
   LojaRoute: typeof LojaRoute
   ApiTtsRoute: typeof ApiTtsRoute
@@ -86,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/conversa': {
@@ -121,6 +146,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   ConversaRoute: ConversaRoute,
   LojaRoute: LojaRoute,
   ApiTtsRoute: ApiTtsRoute,

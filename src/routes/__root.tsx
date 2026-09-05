@@ -15,6 +15,8 @@ import { GameProvider } from "@/lib/game";
 import { LocaleProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { SecretAdminTrigger } from "@/components/SecretAdminTrigger";
+import { SignupInvite } from "@/components/SignupInvite";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -137,12 +139,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
+        <AuthProvider>
         <GameProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <SecretAdminTrigger />
+          <SignupInvite />
           <Toaster position="top-center" richColors />
         </GameProvider>
+        </AuthProvider>
       </LocaleProvider>
     </QueryClientProvider>
   );

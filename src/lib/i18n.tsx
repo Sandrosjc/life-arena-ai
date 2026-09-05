@@ -367,6 +367,37 @@ const SPANISH_REGIONS = new Set([
   "GT", "HN", "NI", "SV", "DO", "CU", "PR",
 ]);
 
+/** Fuso horário -> idioma (aproxima a região geográfica de quem acessa). */
+function localeFromTimeZone(): Locale | null {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
+    if (!tz) return null;
+    const [area = "", city = ""] = tz.split("/");
+    if (area === "America") {
+      const PT_CITIES = new Set([
+        "Sao_Paulo", "Bahia", "Fortaleza", "Recife", "Belem", "Manaus", "Cuiaba",
+        "Campo_Grande", "Porto_Velho", "Rio_Branco", "Boa_Vista", "Maceio",
+        "Araguaina", "Santarem", "Noronha", "Eirunepe",
+      ]);
+      if (PT_CITIES.has(city)) return "pt";
+      const ES_CITIES = new Set([
+        "Mexico_City", "Bogota", "Lima", "Santiago", "Argentina", "Buenos_Aires",
+        "Montevideo", "Asuncion", "La_Paz", "Caracas", "Guayaquil", "Havana",
+        "Santo_Domingo", "Panama", "Guatemala", "Tegucigalpa", "Managua",
+        "El_Salvador", "Costa_Rica", "Puerto_Rico", "Cancun", "Monterrey",
+        "Tijuana", "Hermosillo", "Merida", "Chihuahua", "Mazatlan",
+      ]);
+      if (ES_CITIES.has(city) || tz.startsWith("America/Argentina")) return "es";
+    }
+    if (tz === "Europe/Lisbon" || tz === "Atlantic/Azores" || tz === "Atlantic/Madeira") return "pt";
+    if (tz === "Africa/Luanda" || tz === "Africa/Maputo" || tz === "Africa/Bissau") return "pt";
+    if (tz === "Europe/Madrid" || tz === "Atlantic/Canary" || tz === "Africa/Ceuta") return "es";
+  } catch {
+    /* fuso indisponível: seguimos pelo idioma do navegador */
+  }
+  return null;
+}
+
 export function detectLocale(): Locale {
   if (typeof navigator === "undefined") return "pt";
   const langs = [navigator.language, ...(navigator.languages ?? [])];
@@ -378,7 +409,7 @@ export function detectLocale(): Locale {
     if (lower.startsWith("es")) return "es";
     if (region && SPANISH_REGIONS.has(region)) return "es";
   }
-  return "en";
+  return localeFromTimeZone() ?? "en";
 }
 
 type LocaleContextValue = {

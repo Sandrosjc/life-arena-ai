@@ -17,3 +17,8 @@
 - [x] Palmas, foguete e serpentina nos acertos e ao concluir
 
 - [x] Mascote gatinho fofo como símbolo do curso
+
+## Cadastro (05/09)
+- [ ] Idioma automático por região (fuso horário + idioma do aparelho)
+- [ ] Sem tela de entrar na primeira visita: a pessoa conhece o app livremente
+- [ ] Na segunda visita, convite de cadastro com conta real (e-mail e senha), podendo pular

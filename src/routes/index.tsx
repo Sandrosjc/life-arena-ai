@@ -55,8 +55,7 @@ function PathPage() {
 
   const completedCount = Object.keys(progress.completed).length;
   const nextLessonId =
-    ALL_LESSONS[Math.min(completedCount, ALL_LESSONS.length - 1)]?.lesson.id ??
-    ALL_LESSONS[0].lesson.id;
+    ALL_LESSONS[Math.min(completedCount, ALL_LESSONS.length - 1)]?.lesson.id ?? "";
 
   return (
     <AppShell>

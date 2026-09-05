@@ -142,6 +142,12 @@ const pt: Dict = {
   authInviteBody: "Crie sua conta grátis para não perder sua ofensiva, seu XP e suas lições.",
   authSignOut: "Sair da conta",
   authLoading: "Um instante...",
+  brandName: "CHEQUETTO",
+  brandTagline: "O MELHOR CURSO DE INGLÊS DO MUNDO",
+  brandEnter: "Entrar no curso",
+  adLabel: "Publicidade",
+  adVideoLabel: "Vídeo patrocinado",
+  adRemove: "Remover anúncios com o Pro",
 };
 
 const es: Dict = {
@@ -274,6 +280,12 @@ const es: Dict = {
   authInviteBody: "Crea tu cuenta gratis para no perder tu racha, tu XP y tus lecciones.",
   authSignOut: "Cerrar sesión",
   authLoading: "Un momento...",
+  brandName: "CHEQUETTO",
+  brandTagline: "EL MEJOR CURSO DE INGLÉS DEL MUNDO",
+  brandEnter: "Entrar al curso",
+  adLabel: "Publicidad",
+  adVideoLabel: "Video patrocinado",
+  adRemove: "Quita los anuncios con Pro",
 };
 
 const en: Dict = {
@@ -406,6 +418,12 @@ const en: Dict = {
   authInviteBody: "Create your free account so you never lose your streak, XP and lessons.",
   authSignOut: "Sign out",
   authLoading: "One moment...",
+  brandName: "CHEQUETTO",
+  brandTagline: "THE BEST ENGLISH COURSE IN THE WORLD",
+  brandEnter: "Enter the course",
+  adLabel: "Advertisement",
+  adVideoLabel: "Sponsored video",
+  adRemove: "Remove ads with Pro",
 };
 
 const DICTS: Record<Locale, Dict> = { pt, es, en };

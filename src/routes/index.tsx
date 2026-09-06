@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Crown, Lock, Star } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
+import { AdSlot } from "@/components/AdSlot";
+import { BrandIntro } from "@/components/BrandIntro";
 import { BrainPower } from "@/components/BrainPower";
 import gatinho from "@/assets/gatinho.png";
 import { useGame } from "@/lib/game";
@@ -59,6 +61,7 @@ function PathPage() {
 
   return (
     <AppShell>
+      <BrandIntro />
       <BrainPower />
 
       <section className="mb-6 mt-4 animate-rise rounded-3xl bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
@@ -98,6 +101,8 @@ function PathPage() {
           <span className="rounded-full bg-background/20 px-3 py-1">{progress.xp} XP</span>
         </div>
       </section>
+
+      <AdSlot />
 
       <div className="space-y-10">
         {MODULES.map((module) => {
@@ -188,6 +193,8 @@ function PathPage() {
           );
         })}
       </div>
+
+      <AdSlot variant="video" />
     </AppShell>
   );
 }

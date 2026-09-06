@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
+import { AdSlot } from "@/components/AdSlot";
 import { Confetti } from "@/components/Confetti";
 import { RewardedAd } from "@/components/RewardedAd";
 import { MAX_HEARTS, useGame } from "@/lib/game";
@@ -201,6 +202,8 @@ function ShopPage() {
           ))}
         </div>
       </section>
+
+      <AdSlot variant="video" />
     </AppShell>
   );
 }

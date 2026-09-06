@@ -8,6 +8,10 @@ import {
   type ReactNode,
 } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+
+
 export const MAX_HEARTS = 5;
 const HEART_REGEN_MS = 20 * 60 * 1000;
 const STORAGE_KEY = "fluencybr.progress";
@@ -71,9 +75,30 @@ type GameContextValue = {
 
 const GameContext = createContext<GameContextValue | null>(null);
 
+/** Junta o progresso do aparelho com o da conta, sempre ficando com o melhor. */
+function mergeProgress(local: Progress, remote: Partial<Progress>): Progress {
+  const completed = { ...local.completed };
+  for (const [id, stars] of Object.entries(remote.completed ?? {})) {
+    completed[id] = Math.max(completed[id] ?? 0, stars);
+  }
+  return {
+    ...local,
+    xp: Math.max(local.xp, remote.xp ?? 0),
+    coins: Math.max(local.coins, remote.coins ?? 0),
+    hearts: Math.max(local.hearts, remote.hearts ?? 0),
+    streak: Math.max(local.streak, remote.streak ?? 0),
+    lastStudyDay: local.lastStudyDay ?? remote.lastStudyDay ?? null,
+    isPro: local.isPro || Boolean(remote.isPro),
+    completed,
+  };
+}
+
 export function GameProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<Progress>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
+  const [synced, setSynced] = useState(false);
+  const { user } = useAuth();
+
 
   useEffect(() => {
     try {
@@ -89,6 +114,60 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (!hydrated) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   }, [progress, hydrated]);
+
+  // Ao entrar na conta, traz o progresso guardado na nuvem e junta com o do aparelho.
+  useEffect(() => {
+    if (!hydrated || !user) {
+      setSynced(false);
+      return;
+    }
+    let alive = true;
+    void (async () => {
+      const { data } = await supabase
+        .from("game_progress")
+        .select("xp, coins, hearts, streak, last_study_day, completed, is_pro")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!alive) return;
+      if (data) {
+        setProgress((p) =>
+          mergeProgress(p, {
+            xp: data.xp,
+            coins: data.coins,
+            hearts: data.hearts,
+            streak: data.streak,
+            lastStudyDay: data.last_study_day,
+            isPro: data.is_pro,
+            completed: (data.completed ?? {}) as Record<string, number>,
+          }),
+        );
+      }
+      setSynced(true);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [hydrated, user]);
+
+  // Guarda o progresso na conta, para continuar em qualquer aparelho.
+  useEffect(() => {
+    if (!synced || !user) return;
+    const id = setTimeout(() => {
+      void supabase.from("game_progress").upsert({
+        user_id: user.id,
+        xp: progress.xp,
+        coins: progress.coins,
+        hearts: progress.hearts,
+        streak: progress.streak,
+        last_study_day: progress.lastStudyDay,
+        completed: progress.completed,
+        is_pro: progress.isPro,
+        updated_at: new Date().toISOString(),
+      });
+    }, 900);
+    return () => clearTimeout(id);
+  }, [progress, synced, user]);
+
 
   useEffect(() => {
     if (!hydrated) return;

@@ -8,6 +8,10 @@ import {
   type ReactNode,
 } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+
+
 export const MAX_HEARTS = 5;
 const HEART_REGEN_MS = 20 * 60 * 1000;
 const STORAGE_KEY = "fluencybr.progress";

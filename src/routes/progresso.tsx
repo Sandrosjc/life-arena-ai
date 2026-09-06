@@ -110,7 +110,7 @@ function ProgressPage() {
                     </div>
                     <button
                       type="button"
-                      aria-label={`${t("listen")}: ${phrase.en}`}
+                      aria-label={`${t("listenSlow")}: ${phrase.en}`}
                       onClick={() => void speakEn(phrase.en, 0.75)}
                       className="btn-3d grid size-10 shrink-0 place-items-center rounded-2xl border-secondary-deep bg-secondary text-secondary-foreground"
                     >

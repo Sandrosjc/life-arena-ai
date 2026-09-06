@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Crown, Lock, Star } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
+import { AdSlot } from "@/components/AdSlot";
+import { BrandIntro } from "@/components/BrandIntro";
 import { BrainPower } from "@/components/BrainPower";
 import gatinho from "@/assets/gatinho.png";
 import { useGame } from "@/lib/game";

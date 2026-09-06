@@ -75,9 +75,30 @@ type GameContextValue = {
 
 const GameContext = createContext<GameContextValue | null>(null);
 
+/** Junta o progresso do aparelho com o da conta, sempre ficando com o melhor. */
+function mergeProgress(local: Progress, remote: Partial<Progress>): Progress {
+  const completed = { ...local.completed };
+  for (const [id, stars] of Object.entries(remote.completed ?? {})) {
+    completed[id] = Math.max(completed[id] ?? 0, stars);
+  }
+  return {
+    ...local,
+    xp: Math.max(local.xp, remote.xp ?? 0),
+    coins: Math.max(local.coins, remote.coins ?? 0),
+    hearts: Math.max(local.hearts, remote.hearts ?? 0),
+    streak: Math.max(local.streak, remote.streak ?? 0),
+    lastStudyDay: local.lastStudyDay ?? remote.lastStudyDay ?? null,
+    isPro: local.isPro || Boolean(remote.isPro),
+    completed,
+  };
+}
+
 export function GameProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState<Progress>(INITIAL);
   const [hydrated, setHydrated] = useState(false);
+  const [synced, setSynced] = useState(false);
+  const { user } = useAuth();
+
 
   useEffect(() => {
     try {

@@ -115,6 +115,60 @@ export function GameProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   }, [progress, hydrated]);
 
+  // Ao entrar na conta, traz o progresso guardado na nuvem e junta com o do aparelho.
+  useEffect(() => {
+    if (!hydrated || !user) {
+      setSynced(false);
+      return;
+    }
+    let alive = true;
+    void (async () => {
+      const { data } = await supabase
+        .from("game_progress")
+        .select("xp, coins, hearts, streak, last_study_day, completed, is_pro")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!alive) return;
+      if (data) {
+        setProgress((p) =>
+          mergeProgress(p, {
+            xp: data.xp,
+            coins: data.coins,
+            hearts: data.hearts,
+            streak: data.streak,
+            lastStudyDay: data.last_study_day,
+            isPro: data.is_pro,
+            completed: (data.completed ?? {}) as Record<string, number>,
+          }),
+        );
+      }
+      setSynced(true);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [hydrated, user]);
+
+  // Guarda o progresso na conta, para continuar em qualquer aparelho.
+  useEffect(() => {
+    if (!synced || !user) return;
+    const id = setTimeout(() => {
+      void supabase.from("game_progress").upsert({
+        user_id: user.id,
+        xp: progress.xp,
+        coins: progress.coins,
+        hearts: progress.hearts,
+        streak: progress.streak,
+        last_study_day: progress.lastStudyDay,
+        completed: progress.completed,
+        is_pro: progress.isPro,
+        updated_at: new Date().toISOString(),
+      });
+    }, 900);
+    return () => clearTimeout(id);
+  }, [progress, synced, user]);
+
+
   useEffect(() => {
     if (!hydrated) return;
     const id = setInterval(() => setProgress((p) => regenerate(p)), 30_000);

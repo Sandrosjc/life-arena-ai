@@ -102,6 +102,8 @@ function PathPage() {
         </div>
       </section>
 
+      <AdSlot />
+
       <div className="space-y-10">
         {MODULES.map((module) => {
           const tone = TONE[module.tone];

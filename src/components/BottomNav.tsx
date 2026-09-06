@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Map, MessagesSquare, ShoppingBag } from "lucide-react";
+import { Map, MessagesSquare, ShoppingBag, Trophy } from "lucide-react";
 
 import { useI18n } from "@/lib/i18n";
 
 const ITEMS = [
   { to: "/", icon: Map, key: "tabPath" },
   { to: "/conversa", icon: MessagesSquare, key: "tabChat" },
+  { to: "/progresso", icon: Trophy, key: "tabProgress" },
   { to: "/loja", icon: ShoppingBag, key: "tabShop" },
 ] as const;
 

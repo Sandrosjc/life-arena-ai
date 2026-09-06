@@ -61,6 +61,7 @@ function PathPage() {
 
   return (
     <AppShell>
+      <BrandIntro />
       <BrainPower />
 
       <section className="mb-6 mt-4 animate-rise rounded-3xl bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">

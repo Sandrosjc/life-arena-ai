@@ -201,6 +201,8 @@ function ShopPage() {
           ))}
         </div>
       </section>
+
+      <AdSlot variant="video" />
     </AppShell>
   );
 }

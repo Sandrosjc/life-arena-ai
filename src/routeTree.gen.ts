@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConversaRouteImport } from './routes/conversa'
 import { Route as LojaRouteImport } from './routes/loja'
+import { Route as ProgressoRouteImport } from './routes/progresso'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
 import { Route as LicaoLicaoIdRouteImport } from './routes/licao.$licaoId'
 
@@ -36,6 +37,11 @@ const LojaRoute = LojaRouteImport.update({
   path: '/loja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgressoRoute = ProgressoRouteImport.update({
+  id: '/progresso',
+  path: '/progresso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTtsRoute = ApiTtsRouteImport.update({
   id: '/api/tts',
   path: '/api/tts',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/conversa': typeof ConversaRoute
   '/loja': typeof LojaRoute
+  '/progresso': typeof ProgressoRoute
   '/api/tts': typeof ApiTtsRoute
   '/licao/$licaoId': typeof LicaoLicaoIdRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/conversa': typeof ConversaRoute
   '/loja': typeof LojaRoute
+  '/progresso': typeof ProgressoRoute
   '/api/tts': typeof ApiTtsRoute
   '/licao/$licaoId': typeof LicaoLicaoIdRoute
 }
@@ -69,21 +77,36 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/conversa': typeof ConversaRoute
   '/loja': typeof LojaRoute
+  '/progresso': typeof ProgressoRoute
   '/api/tts': typeof ApiTtsRoute
   '/licao/$licaoId': typeof LicaoLicaoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/conversa' | '/loja' | '/api/tts' | '/licao/$licaoId'
+    | '/'
+    | '/auth'
+    | '/conversa'
+    | '/loja'
+    | '/progresso'
+    | '/api/tts'
+    | '/licao/$licaoId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/conversa' | '/loja' | '/api/tts' | '/licao/$licaoId'
+  to:
+    | '/'
+    | '/auth'
+    | '/conversa'
+    | '/loja'
+    | '/progresso'
+    | '/api/tts'
+    | '/licao/$licaoId'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/conversa'
     | '/loja'
+    | '/progresso'
     | '/api/tts'
     | '/licao/$licaoId'
   fileRoutesById: FileRoutesById
@@ -93,6 +116,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ConversaRoute: typeof ConversaRoute
   LojaRoute: typeof LojaRoute
+  ProgressoRoute: typeof ProgressoRoute
   ApiTtsRoute: typeof ApiTtsRoute
   LicaoLicaoIdRoute: typeof LicaoLicaoIdRoute
 }
@@ -127,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/progresso': {
+      id: '/progresso'
+      path: '/progresso'
+      fullPath: '/progresso'
+      preLoaderRoute: typeof ProgressoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tts': {
       id: '/api/tts'
       path: '/api/tts'
@@ -149,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ConversaRoute: ConversaRoute,
   LojaRoute: LojaRoute,
+  ProgressoRoute: ProgressoRoute,
   ApiTtsRoute: ApiTtsRoute,
   LicaoLicaoIdRoute: LicaoLicaoIdRoute,
 }

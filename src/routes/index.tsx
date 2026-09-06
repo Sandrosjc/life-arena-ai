@@ -193,6 +193,8 @@ function PathPage() {
           );
         })}
       </div>
+
+      <AdSlot variant="video" />
     </AppShell>
   );
 }

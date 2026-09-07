@@ -16,6 +16,8 @@ export const MAX_HEARTS = 5;
 const HEART_REGEN_MS = 20 * 60 * 1000;
 const STORAGE_KEY = "fluencybr.progress";
 
+export type ProPlan = "monthly" | "quarterly" | "yearly";
+
 export type Progress = {
   xp: number;
   coins: number;
@@ -25,6 +27,7 @@ export type Progress = {
   lastStudyDay: string | null;
   completed: Record<string, number>;
   isPro: boolean;
+  proPlan: ProPlan | null;
 };
 
 const INITIAL: Progress = {
@@ -36,6 +39,7 @@ const INITIAL: Progress = {
   lastStudyDay: null,
   completed: {},
   isPro: false,
+  proPlan: null,
 };
 
 function today() {
@@ -69,7 +73,7 @@ type GameContextValue = {
   refillHearts: () => void;
   spendCoins: (amount: number) => boolean;
   completeLesson: (lessonId: string, stars: number, xp: number) => number;
-  activatePro: () => void;
+  activatePro: (plan: ProPlan) => void;
   isUnlocked: (index: number) => boolean;
 };
 
@@ -225,8 +229,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return bonus;
   }, []);
 
-  const activatePro = useCallback(() => {
-    setProgress((p) => ({ ...p, isPro: true, hearts: MAX_HEARTS, lastHeartAt: 0 }));
+  const activatePro = useCallback((plan: ProPlan) => {
+    setProgress((p) => ({ ...p, isPro: true, proPlan: plan, hearts: MAX_HEARTS, lastHeartAt: 0 }));
   }, []);
 
   const completedCount = Object.keys(progress.completed).length;

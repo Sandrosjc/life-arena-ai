@@ -38,11 +38,29 @@ const HEART_PACKS = [
   { hearts: MAX_HEARTS, cost: 350 },
 ];
 
+type Plan = {
+  id: "monthly" | "quarterly" | "yearly";
+  price: number;
+  months: number;
+  badge: "planPopular" | "planBestDeal" | null;
+  savePct: number;
+  hook: "planVsDuolingo" | "planYearlyHook" | null;
+};
+
+const PLANS: Plan[] = [
+  { id: "monthly", price: 4.99, months: 1, badge: null, savePct: 0, hook: "planVsDuolingo" },
+  { id: "quarterly", price: 12.99, months: 3, badge: "planPopular", savePct: 13, hook: null },
+  { id: "yearly", price: 39.99, months: 12, badge: "planBestDeal", savePct: 33, hook: "planYearlyHook" },
+];
+
+const fmtUsd = (value: number) => `US$ ${value.toFixed(2)}`;
+
 function ShopPage() {
   const { t, locale, setLocale } = useI18n();
   const { progress, addHearts, spendCoins, activatePro } = useGame();
   const [party, setParty] = useState(false);
   const [muted, setMuted] = useState(() => isMuted());
+  const [plan, setPlan] = useState<Plan>(PLANS[2]!);
 
   const buyHearts = (hearts: number, cost: number) => {
     if (progress.hearts >= MAX_HEARTS && !progress.isPro) {
@@ -60,7 +78,7 @@ function ShopPage() {
 
   const goPro = () => {
     sfxTap();
-    activatePro();
+    activatePro(plan.id);
     sfxWin();
     setParty(true);
     setTimeout(() => setParty(false), 2600);

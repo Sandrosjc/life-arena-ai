@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { HeartCrack, Sparkles } from "lucide-react";
+import { HeartCrack, PlayCircle, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
-import { RewardedAd } from "@/components/RewardedAd";
+import { FullscreenVideoAd } from "@/components/FullscreenVideoAd";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";
@@ -17,7 +18,8 @@ export function HeartsDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const { t } = useI18n();
-  const { spendCoins, refillHearts } = useGame();
+  const { spendCoins, refillHearts, addHearts } = useGame();
+  const [showAd, setShowAd] = useState(false);
 
   const buyRefill = () => {
     if (!spendCoins(REFILL_COST)) {
@@ -30,7 +32,20 @@ export function HeartsDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+    <FullscreenVideoAd
+      open={showAd}
+      rewarded
+      onCompleted={() => {
+        addHearts(1);
+        toast.success(t("purchased"));
+      }}
+      onClose={() => {
+        setShowAd(false);
+        onOpenChange(false);
+      }}
+    />
+    <Dialog open={open && !showAd} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl border-2 sm:max-w-sm">
         <DialogHeader className="items-center text-center">
           <HeartCrack className="mx-auto size-14 animate-pop text-destructive" strokeWidth={2} />
@@ -39,7 +54,14 @@ export function HeartsDialog({
         </DialogHeader>
 
         <div className="space-y-3">
-          <RewardedAd onRewarded={() => onOpenChange(false)} />
+          <button
+            type="button"
+            onClick={() => setShowAd(true)}
+            className="btn-3d flex w-full items-center justify-center gap-2 rounded-2xl border-secondary-deep bg-secondary px-4 py-3 text-sm font-extrabold text-secondary-foreground"
+          >
+            <PlayCircle className="size-5 shrink-0" strokeWidth={2.5} />
+            {t("watchAd")}
+          </button>
 
           <button
             type="button"
@@ -60,5 +82,6 @@ export function HeartsDialog({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

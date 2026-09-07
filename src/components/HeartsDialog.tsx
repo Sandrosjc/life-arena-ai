@@ -82,5 +82,6 @@ export function HeartsDialog({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

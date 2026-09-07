@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { HeartCrack, Sparkles } from "lucide-react";
+import { HeartCrack, PlayCircle, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
-import { RewardedAd } from "@/components/RewardedAd";
+import { FullscreenVideoAd } from "@/components/FullscreenVideoAd";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGame } from "@/lib/game";
 import { useI18n } from "@/lib/i18n";

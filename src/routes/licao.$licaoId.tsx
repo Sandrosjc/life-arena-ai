@@ -1,6 +1,18 @@
 import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Flame, Lightbulb, Loader2, PartyPopper, Repeat2, Share2, Volume2, X } from "lucide-react";
+import {
+  Check,
+  ExternalLink,
+  Flame,
+  Gift,
+  Lightbulb,
+  Loader2,
+  PartyPopper,
+  Repeat2,
+  Share2,
+  Volume2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { HeartsDialog } from "@/components/HeartsDialog";
@@ -30,25 +42,61 @@ import {
   type Exercise,
 } from "@/lib/lessons";
 
+// ============================================================
+// ayeT STUDIOS OFFERWALL
+// ============================================================
+// Substitua SOMENTE o valor abaixo pelo AdSlot ID do
+// Offerwall #29459 no painel do ayeT Studios.
+//
+// NÃO use o Placement ID #24827 aqui.
+// ============================================================
+
+const AYET_ADSLOT_ID = "COLOQUE_AQUI_O_ADSLOT_ID";
+
+function getAyeTExternalIdentifier() {
+  if (typeof window === "undefined") return "";
+
+  const key = "ayet_external_identifier";
+  const saved = window.localStorage.getItem(key);
+
+  if (saved) return saved;
+
+  const id =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `user-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  window.localStorage.setItem(key, id);
+
+  return id;
+}
+
 export const Route = createFileRoute("/licao/$licaoId")({
   head: () => ({
     meta: [
       { title: "Lição interativa — Chequetto Inglês Fácil" },
       {
         name: "description",
-        content: "Traduza frases, monte sentenças em inglês e ganhe XP com feedback instantâneo.",
+        content:
+          "Traduza frases, monte sentenças em inglês e ganhe XP com feedback instantâneo.",
       },
-      { property: "og:title", content: "Lição interativa — Chequetto Inglês Fácil" },
+      {
+        property: "og:title",
+        content: "Lição interativa — Chequetto Inglês Fácil",
+      },
       {
         property: "og:description",
-        content: "Exercícios rápidos de inglês com correção na hora e sistema de vidas.",
+        content:
+          "Exercícios rápidos de inglês com correção na hora e sistema de vidas.",
       },
       { name: "robots", content: "noindex" },
     ],
   }),
+
   loader: ({ params }) => {
     if (!findLesson(params.licaoId)) throw notFound();
   },
+
   component: LessonPage,
 });
 
@@ -61,6 +109,7 @@ function LessonPage() {
   const { progress, loseHeart, completeLesson } = useGame();
 
   const entry = findLesson(licaoId)!;
+
   const [exercises] = useState<Exercise[]>(() =>
     buildExercises(entry.lesson, entry.module),
   );
@@ -76,18 +125,29 @@ function LessonPage() {
   const [praise, setPraise] = useState<string | null>(null);
   const [burst, setBurst] = useState(0);
   const [heartsDialog, setHeartsDialog] = useState(false);
-  const [finished, setFinished] = useState<{ xp: number; bonus: number } | null>(null);
+  const [finished, setFinished] = useState<{
+    xp: number;
+    bonus: number;
+  } | null>(null);
 
   const [speaking, setSpeaking] = useState<"slow" | "words" | null>(null);
   const [memorizing, setMemorizing] = useState(false);
   const [rep, setRep] = useState(0);
 
+  // ayeT Offerwall
+  const [showAyet, setShowAyet] = useState(false);
+
   const exercise = exercises[index]!;
   const total = exercises.length;
+
   const nativeText = exercise.phrase[locale === "en" ? "pt" : locale];
 
-  const withSpeaking = async (kind: "slow" | "words", task: Promise<void>) => {
+  const withSpeaking = async (
+    kind: "slow" | "words",
+    task: Promise<void>,
+  ) => {
     setSpeaking(kind);
+
     try {
       await task;
     } finally {
@@ -105,50 +165,79 @@ function LessonPage() {
       setMemorizing(false);
       return;
     }
+
     setMemorizing(true);
     setRep(0);
+
     let cancelled = false;
+
     void (async () => {
       for (let i = 1; i <= 3; i += 1) {
         if (cancelled) return;
+
         setRep(i);
+
         await speakEn(exercise.phrase.en, 0.5);
+
         if (cancelled) return;
+
         await new Promise((r) => setTimeout(r, 700));
       }
+
       if (!cancelled) setMemorizing(false);
     })();
+
     return () => {
       cancelled = true;
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, exercise.kind, exercise.phrase.en]);
 
-
   useEffect(() => {
-    if (progress.hearts === 0 && !progress.isPro && !finished) setHeartsDialog(true);
+    if (progress.hearts === 0 && !progress.isPro && !finished) {
+      setHeartsDialog(true);
+    }
   }, [progress.hearts, progress.isPro, finished]);
 
   const answer =
     exercise.kind === "choice" || exercise.kind === "listen"
-      ? (choice ?? "")
+      ? choice ?? ""
       : exercise.kind === "type"
         ? typed
         : built.join(" ");
+
   const canCheck = answer.trim().length > 0;
 
   const check = () => {
-    const target = exercise.kind === "listen" ? exercise.word : exercise.phrase.en;
+    const target =
+      exercise.kind === "listen" ? exercise.word : exercise.phrase.en;
+
     const ok = isAnswerCorrect(answer, target);
+
     setStatus(ok ? "correct" : "wrong");
+
     if (ok) {
       sfxCorrect(combo);
       sfxCoin();
       sfxApplause(1 + combo * 0.2);
-      if (combo + 1 >= 3) sfxRocket();
+
+      if (combo + 1 >= 3) {
+        sfxRocket();
+      }
+
       hapticCorrect();
+
       setCombo((c) => c + 1);
-      const keys = ["praise1", "praise2", "praise3", "praise4", "praise5"] as const;
+
+      const keys = [
+        "praise1",
+        "praise2",
+        "praise3",
+        "praise4",
+        "praise5",
+      ] as const;
+
       setPraise(t(keys[Math.floor(Math.random() * keys.length)]!));
       setBurst((b) => b + 1);
     } else {
@@ -156,7 +245,9 @@ function LessonPage() {
       hapticWrong();
       setCombo(0);
       setPraise(null);
-      // Aquecimento e treino de ouvido não tiram vidas: o iniciante só repete.
+
+      // Aquecimento e treino de ouvido não tiram vidas:
+      // o iniciante só repete.
       if (exercise.kind !== "listen") {
         sfxHeartLost();
         setMistakes((m) => m + 1);
@@ -175,17 +266,22 @@ function LessonPage() {
 
   const next = () => {
     sfxTap();
+
     if (index + 1 >= total) {
       const xp = Math.max(10, (total - mistakes) * 15);
       const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
       const bonus = completeLesson(licaoId, stars, xp);
+
       sfxWin();
       sfxApplause(2);
       sfxRocket();
       hapticWin();
+
       setFinished({ xp, bonus });
+
       return;
     }
+
     setIndex((i) => i + 1);
     setStatus("idle");
     setChoice(null);
@@ -199,9 +295,13 @@ function LessonPage() {
     const text = `Acabei de concluir "${entry.lesson.title[locale]}" no Chequetto Inglês Fácil e ganhei ${
       (finished?.xp ?? 0) + (finished?.bonus ?? 0)
     } XP! 🔥 ${progress.streak} dias de ofensiva.`;
+
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: "Chequetto Inglês Fácil", text });
+        await navigator.share({
+          title: "Chequetto Inglês Fácil",
+          text,
+        });
       } else {
         await navigator.clipboard.writeText(text);
         toast.success("Conquista copiada!");
@@ -213,15 +313,46 @@ function LessonPage() {
 
   const progressPct = Math.round((index / total) * 100);
 
+  // ============================================================
+  // URL OFICIAL DO OFFERWALL WEB DO ayeT
+  // ============================================================
+
+  const ayeTOfferwallUrl =
+    AYET_ADSLOT_ID && !AYET_ADSLOT_ID.includes("COLOQUE_AQUI")
+      ? `https://offerwall.ayet.io/offers?adSlot=${encodeURIComponent(
+          AYET_ADSLOT_ID,
+        )}&externalIdentifier=${encodeURIComponent(
+          getAyeTExternalIdentifier(),
+        )}`
+      : null;
+
+  const openAyeTOfferwall = () => {
+    if (!ayeTOfferwallUrl) {
+      toast.error("Configure o AdSlot ID do ayeT primeiro.");
+      return;
+    }
+
+    window.open(
+      ayeTOfferwallUrl,
+      "_blank",
+      "noopener,noreferrer",
+    );
+
+    setShowAyet(false);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <StatusBar />
       {status === "correct" ? (
         <>
           <Confetti key={burst} pieces={combo >= 2 ? 40 : 24} />
-          {combo >= 3 ? <Rocket key={`r${burst}`} count={2} /> : null}
+          {combo >= 3 ? (
+            <Rocket key={`r${burst}`} count={2} />
+          ) : null}
         </>
       ) : null}
+
+      <StatusBar />
 
       <div className="mx-auto max-w-2xl px-4 pt-4">
         <div className="flex items-center gap-3">
@@ -233,12 +364,14 @@ function LessonPage() {
           >
             <X className="size-6" strokeWidth={3} />
           </button>
+
           <div className="h-4 flex-1 overflow-hidden rounded-full bg-muted">
             <div
               className="h-full rounded-full bg-primary transition-[width] duration-500"
               style={{ width: `${progressPct}%` }}
             />
           </div>
+
           {combo >= 2 ? (
             <span className="animate-pop shrink-0 rounded-full bg-streak px-2 py-1 font-display text-xs text-primary-foreground">
               {combo}x {t("combo")}
@@ -252,13 +385,16 @@ function LessonPage() {
             : exercise.kind === "listen"
               ? t("listenWord")
               : exercise.kind === "choice"
-            ? t("chooseTranslation")
-            : exercise.kind === "type"
-              ? t("typeSentence")
-              : t("buildSentence")}
+                ? t("chooseTranslation")
+                : exercise.kind === "type"
+                  ? t("typeSentence")
+                  : t("buildSentence")}
         </p>
+
         <h1 className="mt-2 font-display text-2xl leading-snug">
-          {exercise.kind === "listen" ? t("listenWordTitle") : nativeText}
+          {exercise.kind === "listen"
+            ? t("listenWordTitle")
+            : nativeText}
         </h1>
 
         {exercise.kind === "learn" ? (
@@ -267,7 +403,10 @@ function LessonPage() {
               <p className="font-display text-3xl leading-snug text-primary">
                 {exercise.phrase.en}
               </p>
-              <p className="mt-2 text-sm font-bold text-muted-foreground">{nativeText}</p>
+
+              <p className="mt-2 text-sm font-bold text-muted-foreground">
+                {nativeText}
+              </p>
             </div>
 
             <div className="flex flex-wrap justify-center gap-2">
@@ -292,35 +431,55 @@ function LessonPage() {
                 disabled={speaking !== null}
                 onClick={() => {
                   sfxTap();
-                  void withSpeaking("slow", speakEn(exercise.phrase.en, 0.55));
+                  void withSpeaking(
+                    "slow",
+                    speakEn(exercise.phrase.en, 0.55),
+                  );
                 }}
                 className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-secondary-deep bg-secondary px-3 py-3 font-extrabold text-secondary-foreground disabled:opacity-70"
               >
                 {speaking === "slow" ? (
-                  <Loader2 className="size-5 shrink-0 animate-spin" strokeWidth={2.5} />
+                  <Loader2
+                    className="size-5 shrink-0 animate-spin"
+                    strokeWidth={2.5}
+                  />
                 ) : (
-                  <Volume2 className="size-5 shrink-0" strokeWidth={2.5} />
+                  <Volume2
+                    className="size-5 shrink-0"
+                    strokeWidth={2.5}
+                  />
                 )}
+
                 {t("listenSlow")}
               </button>
+
               <button
                 type="button"
                 disabled={speaking !== null}
                 onClick={() => {
                   sfxTap();
-                  void withSpeaking("words", speakEnWordByWord(exercise.phrase.en));
+                  void withSpeaking(
+                    "words",
+                    speakEnWordByWord(exercise.phrase.en),
+                  );
                 }}
                 className="btn-3d flex items-center justify-center gap-2 rounded-2xl border-accent-deep bg-accent px-3 py-3 font-extrabold text-accent-foreground disabled:opacity-70"
               >
                 {speaking === "words" ? (
-                  <Loader2 className="size-5 shrink-0 animate-spin" strokeWidth={2.5} />
+                  <Loader2
+                    className="size-5 shrink-0 animate-spin"
+                    strokeWidth={2.5}
+                  />
                 ) : (
-                  <Repeat2 className="size-5 shrink-0" strokeWidth={2.5} />
+                  <Repeat2
+                    className="size-5 shrink-0"
+                    strokeWidth={2.5}
+                  />
                 )}
+
                 {t("repeatWords")}
               </button>
             </div>
-
 
             <p className="text-center text-sm font-bold text-muted-foreground">
               {t("warmUpHelp")}
@@ -336,12 +495,18 @@ function LessonPage() {
               }}
               className="btn-3d flex w-full items-center justify-center gap-3 rounded-3xl border-secondary-deep bg-secondary px-4 py-8 font-display text-xl text-secondary-foreground"
             >
-              <Volume2 className="size-8 shrink-0" strokeWidth={2.5} />
+              <Volume2
+                className="size-8 shrink-0"
+                strokeWidth={2.5}
+              />
+
               {t("playAgain")}
             </button>
+
             <div className="space-y-3">
               {exercise.options.map((option) => {
                 const selected = choice === option;
+
                 return (
                   <button
                     key={option}
@@ -368,6 +533,7 @@ function LessonPage() {
           <div className="mt-6 space-y-3">
             {exercise.options.map((option) => {
               const selected = choice === option;
+
               return (
                 <button
                   key={option}
@@ -393,14 +559,23 @@ function LessonPage() {
             <div className="mt-6 space-y-5">
               <div className="card-3d rounded-3xl border-primary/30 bg-primary/5 p-5 text-center">
                 <p className="flex items-center justify-center gap-2 text-xs font-extrabold uppercase tracking-widest text-primary">
-                  <Volume2 className="size-4 shrink-0 animate-pulse" strokeWidth={2.5} />
+                  <Volume2
+                    className="size-4 shrink-0 animate-pulse"
+                    strokeWidth={2.5}
+                  />
+
                   {t("memorizeTitle")}
                 </p>
+
                 <p className="mt-3 font-display text-3xl leading-snug text-primary">
                   {exercise.phrase.en}
                 </p>
-                <p className="mt-2 text-sm font-bold text-muted-foreground">{nativeText}</p>
+
+                <p className="mt-2 text-sm font-bold text-muted-foreground">
+                  {nativeText}
+                </p>
               </div>
+
               <div className="flex justify-center gap-2">
                 {[1, 2, 3].map((n) => (
                   <span
@@ -415,9 +590,11 @@ function LessonPage() {
                   />
                 ))}
               </div>
+
               <p className="text-center text-sm font-bold text-muted-foreground">
                 {t("memorizeHelp")}
               </p>
+
               <button
                 type="button"
                 onClick={() => {
@@ -430,43 +607,63 @@ function LessonPage() {
               </button>
             </div>
           ) : (
-          <div className="mt-6 space-y-3">
-            <input
-              value={typed}
-              disabled={status !== "idle"}
-              onChange={(e) => {
-                if (e.target.value.length > typed.length) sfxKey();
-                setTyped(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && canCheck && status === "idle") check();
-              }}
-              autoCapitalize="off"
-              autoCorrect="off"
-              spellCheck={false}
-              placeholder={t("typePlaceholder")}
-              className="card-3d w-full rounded-2xl border-border bg-card px-4 py-4 text-lg font-bold outline-none focus:border-secondary"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                sfxTap();
-                setHint(true);
-              }}
-              className="flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-extrabold text-secondary"
-            >
-              <Lightbulb className="size-4 shrink-0" strokeWidth={3} />
-              {t("hint")}
-            </button>
-            {hint ? (
-              <p className="animate-pop font-mono text-lg tracking-widest text-muted-foreground">
-                {exercise.phrase.en
-                  .split(" ")
-                  .map((w) => `${w[0]}${"_".repeat(Math.max(0, w.length - 1))}`)
-                  .join(" ")}
-              </p>
-            ) : null}
-          </div>
+            <div className="mt-6 space-y-3">
+              <input
+                value={typed}
+                disabled={status !== "idle"}
+                onChange={(e) => {
+                  if (e.target.value.length > typed.length) {
+                    sfxKey();
+                  }
+
+                  setTyped(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    canCheck &&
+                    status === "idle"
+                  ) {
+                    check();
+                  }
+                }}
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                placeholder={t("typePlaceholder")}
+                className="card-3d w-full rounded-2xl border-border bg-card px-4 py-4 text-lg font-bold outline-none focus:border-secondary"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  sfxTap();
+                  setHint(true);
+                }}
+                className="flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-extrabold text-secondary"
+              >
+                <Lightbulb
+                  className="size-4 shrink-0"
+                  strokeWidth={3}
+                />
+
+                {t("hint")}
+              </button>
+
+              {hint ? (
+                <p className="animate-pop font-mono text-lg tracking-widest text-muted-foreground">
+                  {exercise.phrase.en
+                    .split(" ")
+                    .map(
+                      (w) =>
+                        `${w[0]}${"_".repeat(
+                          Math.max(0, w.length - 1),
+                        )}`,
+                    )
+                    .join(" ")}
+                </p>
+              ) : null}
+            </div>
           )
         ) : (
           <div className="mt-6">
@@ -477,7 +674,11 @@ function LessonPage() {
                     key={`${token}-${i}`}
                     type="button"
                     disabled={status !== "idle"}
-                    onClick={() => setBuilt((b) => b.filter((_, idx) => idx !== i))}
+                    onClick={() =>
+                      setBuilt((b) =>
+                        b.filter((_, idx) => idx !== i),
+                      )
+                    }
                     className="card-3d rounded-xl border-border bg-card px-3 py-2 text-sm font-bold"
                   >
                     {token}
@@ -489,14 +690,20 @@ function LessonPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               {exercise.tokens.map((token, i) => {
                 const used = built.filter((b) => b === token).length;
-                const available = exercise.tokens.filter((tk) => tk === token).length;
+                const available = exercise.tokens.filter(
+                  (tk) => tk === token,
+                ).length;
+
                 const isUsed = used >= available;
+
                 return (
                   <button
                     key={`${token}-${i}`}
                     type="button"
                     disabled={status !== "idle" || isUsed}
-                    onClick={() => setBuilt((b) => [...b, token])}
+                    onClick={() =>
+                      setBuilt((b) => [...b, token])
+                    }
                     className={`card-3d rounded-xl px-3 py-2 text-sm font-bold ${
                       isUsed
                         ? "border-transparent bg-muted text-transparent"
@@ -527,21 +734,36 @@ function LessonPage() {
           {status !== "idle" ? (
             <div className="mb-3 flex items-start gap-2">
               {status === "correct" ? (
-                <Check className="size-6 shrink-0 text-primary" strokeWidth={3} />
+                <Check
+                  className="size-6 shrink-0 text-primary"
+                  strokeWidth={3}
+                />
               ) : (
-                <X className="size-6 shrink-0 text-destructive" strokeWidth={3} />
+                <X
+                  className="size-6 shrink-0 text-destructive"
+                  strokeWidth={3}
+                />
               )}
+
               <div>
                 <p
                   className={`font-display text-lg ${
-                    status === "correct" ? "text-primary" : "text-destructive"
+                    status === "correct"
+                      ? "text-primary"
+                      : "text-destructive"
                   }`}
                 >
-                  {status === "correct" ? (praise ?? t("correct")) : t("wrong")}
+                  {status === "correct"
+                    ? praise ?? t("correct")
+                    : t("wrong")}
                 </p>
+
                 {status === "wrong" ? (
                   <p className="text-sm font-bold text-destructive">
-                    {t("answerWas")} {exercise.kind === "listen" ? exercise.word : exercise.phrase.en}
+                    {t("answerWas")}{" "}
+                    {exercise.kind === "listen"
+                      ? exercise.word
+                      : exercise.phrase.en}
                   </p>
                 ) : null}
               </div>
@@ -550,13 +772,18 @@ function LessonPage() {
 
           <button
             type="button"
-            disabled={status === "idle" && !canCheck && exercise.kind !== "learn"}
+            disabled={
+              status === "idle" &&
+              !canCheck &&
+              exercise.kind !== "learn"
+            }
             onClick={
               exercise.kind === "learn"
                 ? next
                 : status === "idle"
                   ? check
-                  : status === "wrong" && exercise.kind === "listen"
+                  : status === "wrong" &&
+                      exercise.kind === "listen"
                     ? retry
                     : next
             }
@@ -570,7 +797,8 @@ function LessonPage() {
               ? t("gotIt")
               : status === "idle"
                 ? t("check")
-                : status === "wrong" && exercise.kind === "listen"
+                : status === "wrong" &&
+                    exercise.kind === "listen"
                   ? t("tryAgain")
                   : t("continue")}
           </button>
@@ -581,9 +809,16 @@ function LessonPage() {
         open={heartsDialog}
         onOpenChange={(open) => {
           setHeartsDialog(open);
-          if (!open && progress.hearts === 0) navigate({ to: "/" });
+
+          if (!open && progress.hearts === 0) {
+            navigate({ to: "/" });
+          }
         }}
       />
+
+      {/* ========================================================
+          DIALOG DE CONCLUSÃO DA LIÇÃO
+         ======================================================== */}
 
       <Dialog open={finished !== null}>
         {finished ? (
@@ -592,26 +827,50 @@ function LessonPage() {
             <Rocket count={5} />
           </>
         ) : null}
+
         <DialogContent className="rounded-3xl border-2 text-center sm:max-w-sm">
-          <PartyPopper className="mx-auto size-16 animate-pop text-gold" strokeWidth={2} />
-          <h2 className="font-display text-2xl">{t("lessonDone")}</h2>
+          <PartyPopper
+            className="mx-auto size-16 animate-pop text-gold"
+            strokeWidth={2}
+          />
+
+          <h2 className="font-display text-2xl">
+            {t("lessonDone")}
+          </h2>
 
           <div className="grid grid-cols-3 gap-2">
             <div className="card-3d rounded-2xl border-primary/30 bg-primary/10 p-3">
-              <p className="font-display text-xl text-primary">+{finished?.xp ?? 0}</p>
-              <p className="text-[11px] font-bold text-muted-foreground">{t("xpEarned")}</p>
+              <p className="font-display text-xl text-primary">
+                +{finished?.xp ?? 0}
+              </p>
+
+              <p className="text-[11px] font-bold text-muted-foreground">
+                {t("xpEarned")}
+              </p>
             </div>
+
             <div className="card-3d rounded-2xl border-streak/30 bg-streak/10 p-3">
               <p className="flex items-center justify-center gap-1 font-display text-xl text-streak">
-                <Flame className="size-4 shrink-0" strokeWidth={3} />+{finished?.bonus ?? 0}
+                <Flame
+                  className="size-4 shrink-0"
+                  strokeWidth={3}
+                />
+                +{finished?.bonus ?? 0}
               </p>
-              <p className="text-[11px] font-bold text-muted-foreground">{t("streakBonus")}</p>
+
+              <p className="text-[11px] font-bold text-muted-foreground">
+                {t("streakBonus")}
+              </p>
             </div>
+
             <div className="card-3d rounded-2xl border-secondary/30 bg-secondary/10 p-3">
               <p className="font-display text-xl text-secondary">
                 +{Math.round((finished?.xp ?? 0) / 2)}
               </p>
-              <p className="text-[11px] font-bold text-muted-foreground">{t("totalCoins")}</p>
+
+              <p className="text-[11px] font-bold text-muted-foreground">
+                {t("totalCoins")}
+              </p>
             </div>
           </div>
 
@@ -620,8 +879,34 @@ function LessonPage() {
             onClick={share}
             className="btn-3d flex w-full items-center justify-center gap-2 rounded-2xl border-accent-deep bg-accent px-4 py-3 font-extrabold text-accent-foreground"
           >
-            <Share2 className="size-5 shrink-0" strokeWidth={2.5} />
+            <Share2
+              className="size-5 shrink-0"
+              strokeWidth={2.5}
+            />
+
             {t("share")}
+          </button>
+
+          {/* ======================================================
+              BOTÃO DO AYET OFFERWALL
+             ====================================================== */}
+
+          <button
+            type="button"
+            onClick={() => setShowAyet(true)}
+            className="btn-3d flex w-full items-center justify-center gap-2 rounded-2xl border-secondary-deep bg-secondary px-4 py-3 font-extrabold text-secondary-foreground"
+          >
+            <Gift
+              className="size-5 shrink-0"
+              strokeWidth={2.5}
+            />
+
+            Ganhar recompensas extras
+
+            <ExternalLink
+              className="size-4 shrink-0"
+              strokeWidth={2.5}
+            />
           </button>
 
           <button
@@ -631,6 +916,63 @@ function LessonPage() {
           >
             {t("backToPath")}
           </button>
+        </DialogContent>
+      </Dialog>
+
+      {/* ========================================================
+          DIALOG DO AYET OFFERWALL
+         ======================================================== */}
+
+      <Dialog open={showAyet} onOpenChange={setShowAyet}>
+        <DialogContent className="rounded-3xl border-2 sm:max-w-lg">
+          <div className="text-center">
+            <Gift
+              className="mx-auto size-14 text-secondary"
+              strokeWidth={2.5}
+            />
+
+            <h2 className="mt-3 font-display text-2xl">
+              Recompensas extras
+            </h2>
+
+            <p className="mt-2 text-sm font-bold text-muted-foreground">
+              Complete ofertas disponíveis no Offerwall para ganhar
+              recompensas.
+            </p>
+
+            <div className="mt-5 rounded-2xl border border-border bg-muted/40 p-4 text-left">
+              <p className="font-extrabold">
+                Como funciona
+              </p>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Toque no botão abaixo para abrir o Offerwall do
+                ayeT em uma nova aba. As ofertas e recompensas são
+                exibidas pelo ayeT Studios.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={openAyeTOfferwall}
+              disabled={!ayeTOfferwallUrl}
+              className="btn-3d mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border-primary-deep bg-primary px-4 py-4 font-extrabold text-primary-foreground disabled:opacity-60"
+            >
+              <ExternalLink
+                className="size-5 shrink-0"
+                strokeWidth={2.5}
+              />
+
+              Abrir Offerwall
+            </button>
+
+            {!ayeTOfferwallUrl ? (
+              <p className="mt-3 text-xs font-bold text-destructive">
+                O AdSlot ID do ayeT ainda não foi configurado neste
+                arquivo.
+              </p>
+            ) : null}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
